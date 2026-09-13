@@ -63,27 +63,27 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
   return (
     <div 
       id="faction-select-modal-overlay"
-      className="fixed inset-0 z-[1000] bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
+      className="fixed inset-0 z-[1000] bg-black/85 backdrop-blur-md flex items-center justify-center sm:p-4 animate-fadeIn"
     >
       {/* Modal Çerçevesi (13. Yüzyıl Selçuklu & Beylikler Ahşap-Altın Sandığı) */}
       <div 
         id="faction-select-modal-container"
-        className="relative w-full max-w-5xl bg-[#140e08] border-2 border-[#b8860b]/80 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.95),inset_0_1px_3px_rgba(255,215,0,0.3)] overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-3rem)]"
+        className="relative w-full h-full sm:h-auto max-w-5xl bg-[#140e08] sm:border-2 border-[#b8860b]/80 sm:rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.95),inset_0_1px_3px_rgba(255,215,0,0.3)] overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[calc(100dvh-3rem)]"
       >
         {/* Üst Başlık Barı (Pirinç Kabartma Çerçeve) */}
         <div 
           id="faction-modal-header"
-          className="shrink-0 relative bg-gradient-to-r from-[#2a1708] via-[#4a2e12] to-[#2a1708] border-b-2 border-[#b8860b] px-4 py-3 flex items-center justify-between shadow-md"
+          className="shrink-0 relative bg-gradient-to-r from-[#2a1708] via-[#4a2e12] to-[#2a1708] border-b-2 border-[#b8860b] px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between shadow-md pt-[max(env(safe-area-inset-top),0.5rem)] sm:pt-3"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-b from-[#ffd700] to-[#b8860b] p-0.5 shadow-[0_2px_6px_rgba(0,0,0,0.6)] flex items-center justify-center shrink-0">
-              <Crown className="w-5 h-5 text-[#2a1708]" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-b from-[#ffd700] to-[#b8860b] p-0.5 shadow-[0_2px_6px_rgba(0,0,0,0.6)] flex items-center justify-center shrink-0">
+              <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-[#2a1708]" />
             </div>
             <div>
               <h2 className="text-sm sm:text-base md:text-lg font-serif font-black tracking-wide text-[#fce8b3] drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)]">
                 {isMandatory ? 'BEYLİĞİNİ SEÇ VE AND İÇ' : '13. YÜZYIL ANADOLU BEYLİKLERİ VE SANCAK SEÇİMİ'}
               </h2>
-              <p className="text-[11px] text-[#deb887] font-sans line-clamp-1 sm:line-clamp-none">
+              <p className="text-[10px] sm:text-[11px] text-[#deb887] font-sans line-clamp-1 sm:line-clamp-none">
                 Beyliğinizi seçin; özel elit biriminizi ve kalıcı beylik bonuslarınızı savaşa sürün.
               </p>
             </div>
@@ -93,10 +93,10 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
             <button
               id="close-faction-modal-btn"
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-[#2a1708] hover:bg-[#5c1c1c] border border-[#b8860b]/60 text-[#fce8b3] flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-inner shrink-0"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#2a1708] hover:bg-[#5c1c1c] border border-[#b8860b]/60 text-[#fce8b3] flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-inner shrink-0 ml-2"
               title="Kapat"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
         </div>
@@ -104,7 +104,7 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
         {/* 5 Beylik Seçim Sekmeleri (Yatay Kart Şeridi) */}
         <div 
           id="faction-tabs-list"
-          className="shrink-0 grid grid-cols-2 sm:grid-cols-5 gap-2 p-2.5 sm:p-3 bg-[#0d0905] border-b border-[#3d2817] overflow-x-auto"
+          className="shrink-0 flex sm:grid sm:grid-cols-5 gap-2 p-2 sm:p-3 bg-[#0d0905] border-b border-[#3d2817] overflow-x-auto snap-x snap-mandatory hide-scrollbar sm:custom-scrollbar"
         >
           {BEYLIK_LIST.map((beylik) => {
             const isSelected = beylik.id === selectedKey;
@@ -115,7 +115,7 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
                 key={beylik.id}
                 id={`faction-tab-${beylik.id}`}
                 onClick={() => setSelectedKey(beylik.id)}
-                className={`relative group p-2.5 rounded-xl border text-left transition-all duration-200 overflow-hidden flex flex-col justify-between ${
+                className={`min-w-[150px] sm:min-w-0 snap-center shrink-0 relative group p-2.5 rounded-xl border text-left transition-all duration-200 overflow-hidden flex flex-col justify-between ${
                   isSelected
                     ? 'bg-gradient-to-b from-[#382310] to-[#1e1208] border-[#ffd700] shadow-[0_0_15px_rgba(255,215,0,0.25),inset_0_1px_2px_rgba(255,255,255,0.2)] ring-1 ring-[#ffd700]/50'
                     : 'bg-[#181109] border-[#4a3520]/60 hover:border-[#b8860b]/60 hover:bg-[#24180d]'
@@ -355,27 +355,27 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
         {/* Alt Aksiyon & Onay Barı */}
         <div 
           id="faction-modal-footer"
-          className="shrink-0 bg-gradient-to-r from-[#1c1208] via-[#2a1b0d] to-[#1c1208] border-t-2 border-[#b8860b]/60 px-4 sm:px-5 py-3 sm:py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-2xl"
+          className="shrink-0 bg-gradient-to-r from-[#1c1208] via-[#2a1b0d] to-[#1c1208] border-t-2 border-[#b8860b]/60 p-3 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xl pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:pb-3.5"
         >
           {showConfirm ? (
-            <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-4 bg-red-950/40 p-2 rounded-lg border border-red-900/50">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-6 h-6 text-red-500 animate-pulse shrink-0" />
+            <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-red-950/40 p-3 sm:p-2 rounded-lg border border-red-900/50">
+              <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+                <AlertTriangle className="w-8 h-8 sm:w-6 sm:h-6 text-red-500 animate-pulse shrink-0" />
                 <div>
-                  <h4 className="text-red-400 font-bold text-sm">Son Kararınız Mı?</h4>
-                  <p className="text-red-200/80 text-[11px]">Dikkat: Seçtiğin beylik sancağı kaderini belirler ve bir daha <strong>asla değiştirilemez!</strong></p>
+                  <h4 className="text-red-400 font-bold text-sm sm:text-base mb-1 sm:mb-0">Son Kararınız Mı?</h4>
+                  <p className="text-red-200/80 text-[11px] sm:text-xs">Dikkat: Seçtiğin beylik sancağı kaderini belirler ve bir daha <strong className="text-red-300">asla değiştirilemez!</strong></p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                 <button
                   onClick={() => setShowConfirm(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-300 text-xs font-bold transition-all cursor-pointer"
+                  className="px-4 py-2.5 sm:py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-300 text-sm sm:text-xs font-bold transition-all cursor-pointer"
                 >
                   İptal Et
                 </button>
                 <button
                   onClick={handleConfirmChoice}
-                  className="px-6 py-2 rounded-xl bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white text-xs font-black tracking-wide border border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.4)] transition-all cursor-pointer"
+                  className="px-6 py-3 sm:py-2 rounded-xl bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white text-sm sm:text-xs font-black tracking-wide border border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.4)] transition-all cursor-pointer"
                 >
                   And İç ve Beyliğini Kur
                 </button>
@@ -383,7 +383,7 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2.5 text-xs text-[#deb887]">
+              <div className="flex items-center justify-center sm:justify-start gap-2.5 text-xs text-[#deb887]">
                 <div className="w-8 h-5 rounded overflow-hidden border border-[#ffd700]/70 shadow-sm bg-black/50 shrink-0">
                   <img 
                     src={selectedBeylik.flagImage} 
@@ -393,16 +393,16 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
                   />
                 </div>
                 <span>
-                  Seçilen Sancak: <strong className="text-[#ffd700]">{selectedBeylik.name}</strong>
+                  Seçilen Sancak: <strong className="text-[#ffd700] text-sm">{selectedBeylik.name}</strong>
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 {!isMandatory && (
                   <button
                     id="cancel-faction-select-btn"
                     onClick={onClose}
-                    className="px-4 py-2 rounded-xl bg-[#24180d] hover:bg-[#332212] border border-[#5c4026] text-[#deb887] text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-2.5 sm:py-2 rounded-xl bg-[#24180d] hover:bg-[#332212] border border-[#5c4026] text-[#deb887] text-sm sm:text-xs font-bold transition-all cursor-pointer text-center"
                   >
                     Vazgeç
                   </button>
@@ -411,7 +411,7 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
                 <button
                   id="confirm-faction-select-btn"
                   onClick={handleConfirmChoice}
-                  className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm font-serif font-black tracking-wide transition-all duration-200 flex items-center gap-2 shadow-lg cursor-pointer ${
+                  className={`px-6 py-3 sm:py-2.5 rounded-xl text-sm font-serif font-black tracking-wide transition-all duration-200 flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
                     isCurrentlyActive
                       ? 'bg-[#2b2014] text-[#998066] border border-[#5c4026] cursor-default'
                       : 'bg-gradient-to-r from-[#ffd700] via-[#f59e0b] to-[#d97706] hover:from-[#ffe066] hover:to-[#f59e0b] text-[#241508] border border-[#fff59d] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,215,0,0.35)]'
@@ -419,12 +419,12 @@ export const FactionSelectModal: React.FC<FactionSelectModalProps> = ({
                 >
                   {isCurrentlyActive ? (
                     <>
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <ShieldCheck className="w-5 h-5 sm:w-4 sm:h-4 text-emerald-400" />
                       Mevcut Sancağınız Bu
                     </>
                   ) : (
                     <>
-                      <Crown className="w-4 h-4" />
+                      <Crown className="w-5 h-5 sm:w-4 sm:h-4" />
                       {isMandatory ? 'Bu Sancağa Biat Et' : 'Bu Sancağa Biat Et (Seç)'}
                     </>
                   )}
