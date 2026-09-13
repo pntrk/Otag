@@ -1,0 +1,6 @@
+{
+  "name": "Otağ",
+  "description": "13. Yüzyıl Anadolu Beylikleri Çağında geçen, harita etki alanı (radius) ve otomatik kaynak toplama mekaniğine sahip klasik strateji oyunu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

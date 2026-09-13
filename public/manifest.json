@@ -1,0 +1,55 @@
+{
+  "id": "/",
+  "name": "Otağ - Umaykut Strateji",
+  "short_name": "Otağ",
+  "description": "13. Yüzyıl Anadolu Beylikleri Çağında geçen, harita etki alanı (radius) ve otomatik kaynak toplama mekaniğine sahip klasik strateji oyunu.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1c1108",
+  "background_color": "#120a05",
+  "icons": [
+    {
+      "src": "/pwa-icon.ico",
+      "sizes": "16x16 24x24 32x32 48x48 64x64 72x72 96x96 128x128 256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/pwa-icon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
