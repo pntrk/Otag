@@ -147,9 +147,9 @@ export const DispatchMarchModal: React.FC<DispatchMarchModalProps> = ({
   const factionMarchMult = (currentOriginVillage.faction && FACTIONS[currentOriginVillage.faction]?.marchSpeedMultiplier) || 1.0;
   const effectiveSpeed = slowestSpeed * factionMarchMult;
 
-  // Süre hesaplama (Hızlandır seçildiyse 2 kat hızlı)
-  const baseDurationSec = Math.max(8, Math.round((distance / effectiveSpeed) * 60));
-  const finalDurationSec = isBoosted ? Math.max(4, Math.round(baseDurationSec / 2)) : baseDurationSec;
+  // Süre hesaplama (100x Hızlandırma ile; Hızlandır seçildiyse 2 kat hızlı)
+  const baseDurationSec = Math.max(2, Math.round(((distance / effectiveSpeed) * 60) / 100));
+  const finalDurationSec = isBoosted ? Math.max(2, Math.round(baseDurationSec / 2)) : baseDurationSec;
 
   // Formatlı süre: SS:DD:SS (örn: 00:07:16)
   const formatTimeHMS = (sec: number) => {

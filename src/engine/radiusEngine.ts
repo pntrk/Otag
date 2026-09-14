@@ -73,7 +73,9 @@ export function getRadiusGrowthDurationHours(faction: FactionId, schoolLevel: nu
  * Büyüme süresini milisaniye cinsinden verir.
  */
 export function getRadiusGrowthDurationMs(faction: FactionId, schoolLevel: number): number {
-  return getRadiusGrowthDurationHours(faction, schoolLevel) * 3600 * 1000;
+  // 100x Hızlandırma uygulanmış büyüme periyodu (ms)
+  const baseMs = getRadiusGrowthDurationHours(faction, schoolLevel) * 3600 * 1000;
+  return Math.max(1000, Math.round(baseMs / 100));
 }
 
 /**

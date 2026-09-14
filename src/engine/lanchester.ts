@@ -485,22 +485,17 @@ export function simulateBattle(input: BattleInput): BattleReport {
   }
 
   // ==========================================
-  // 8. KUŞATMA VE BİNA YIKIMI ('attack' ve Mancınık / Top Varlığı)
+  // 8. KUŞATMA VE BİNA YIKIMI ('attack' ve Koçbaşı Varlığı)
   // ==========================================
   const damagedBuildings: DamagedBuildingInfo[] = [];
   let finalWallLevel = defenderWallLevel;
 
-  const survivingMancinik = attackerCasualties.unitsRemaining.mancinik || 0;
-  const survivingTop = attackerCasualties.unitsRemaining.top || 0;
   const survivingRams = attackerCasualties.unitsRemaining.kocbasi || 0;
 
   if (attackerResult === 'victory' && mission === 'attack') {
-    // Kuşatma Gücü: Mancınık veya Top varsa binalar yıkılır
-    const hasHeavySiege = survivingMancinik > 0 || survivingTop > 0;
-    
-    if (hasHeavySiege || survivingRams > 0) {
-      // Ham Kuşatma Yıkım Puanı
-      let rawSiegePoints = (survivingMancinik * 16) + (survivingTop * 36) + (survivingRams * 4);
+    if (survivingRams > 0) {
+      // Ham Kuşatma Yıkım Puanı (Koçbaşı başı 12 Kuşatma/Sur yıkım gücü)
+      let rawSiegePoints = survivingRams * 12;
 
       // Savunmacı beyliğin bina kuşatma dayanımı (FactionAttributes: buildingSiegeResistance, Karamanoğulları 1.25)
       const siegeResistance = FACTIONS[defenderFaction]?.buildingSiegeResistance || 1.0;

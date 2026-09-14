@@ -17,6 +17,7 @@ import { calculateReviveCost, calculateReviveDurationSec, calculateNextLevelXp, 
 import { 
   BUILDINGS, 
   FACTIONS, 
+  GAME_SPEED_MULTIPLIER,
   INITIAL_PLAYER_VILLAGE, 
   INITIAL_PLAYER_VILLAGES, 
   INITIAL_RESOURCE_NODES, 
@@ -113,6 +114,14 @@ export default function App() {
               ...v,
               name: villageName,
               radius: v.radius ?? 1.0,
+              maxCapacity: Math.max(5000000, v.maxCapacity || 5000000),
+              resources: {
+                wood: Math.min(5000000, Math.max(25000, v.resources?.wood ?? 25000)),
+                stone: Math.min(5000000, Math.max(25000, v.resources?.stone ?? 25000)),
+                iron: Math.min(5000000, Math.max(20000, v.resources?.iron ?? 20000)),
+                grain: Math.min(5000000, Math.max(30000, v.resources?.grain ?? 30000)),
+                gold: Math.min(5000000, Math.max(10000, v.resources?.gold ?? 10000)),
+              },
               lastRadiusExpansionTimestamp: v.lastRadiusExpansionTimestamp ?? Date.now(),
               assignedWorkers: v.assignedWorkers ?? {},
               workingPopulation: v.workingPopulation ?? 10,
@@ -426,7 +435,7 @@ export default function App() {
       setPlayerVillages(prevVillages => {
         if (!prevVillages || prevVillages.length === 0) return prevVillages;
 
-        // 1. Ortak Hazine Artışı (Tüm köyler tek bir ortak kasayı paylaşır)
+        // 1. Ortak Hazine Artışı (Tüm köyler tek bir ortak kasayı paylaşır, 100x hızlandırma)
         const governanceBonus = khan.status === 'idle' ? khan.skills.governance * 1.0 : 0;
         const tickResult = processSharedTick(
           prevVillages,
@@ -435,7 +444,7 @@ export default function App() {
           governanceBonus
         );
 
-        // 2. Her Köyün Nüfus Doğumunu İşle (20 dakikada bir, Karaman/Otağ bonuslu)
+        // 2. Her Köyün Nüfus Doğumunu İşle (Karaman/Otağ bonuslu)
         // 3. Her Köyün Zamanla Yarıçap Genişlemesini İşle (Umaykut Okul/Beylik Kuralları)
         // 4. Garnizonda Bulunan Destek Birliklerinin Tahıl Tüketimi ve Açlık (Starvation)
         return tickResult.updatedVillages.map(v => {
@@ -446,7 +455,7 @@ export default function App() {
             showBanner(`⭕ ${v.name}: Etki çemberi genişledi! Yeni yarıçap: ${radResult.newRadius.toFixed(1)} birim.`);
           }
 
-          const { updatedVillage: fedVillage } = processVillageSupportUpkeepAndStarvation(radResult.village, deltaSec);
+          const { updatedVillage: fedVillage } = processVillageSupportUpkeepAndStarvation(radResult.village, deltaSec * GAME_SPEED_MULTIPLIER);
           // Artık tahıl ambarı boşaldı veya açlık bildirimlerini arayüzde (banner) göstermiyoruz.
 
           // 5. Demirci Araştırma Kuyruğu Kontrolü
@@ -728,6 +737,8 @@ export default function App() {
       const breedingMultiplier = (village.faction && FACTIONS[village.faction]?.horseBreedingSpeedMultiplier) || 1.0;
       finalTrainingTimeSec = Math.max(5, Math.round(def.trainingTimeSec / breedingMultiplier));
     }
+    // 100x Hızlandırma (minimum 1 saniye)
+    const effectiveTrainingTimeSec = Math.max(1, Math.round(finalTrainingTimeSec / GAME_SPEED_MULTIPLIER));
 
     const newItem: TrainingQueueItem = {
       id: 'tq_' + now,
@@ -735,8 +746,8 @@ export default function App() {
       unitType,
       amount,
       remainingAmount: amount,
-      unitDurationSec: finalTrainingTimeSec,
-      nextFinishTime: now + (finalTrainingTimeSec * 1000),
+      unitDurationSec: effectiveTrainingTimeSec,
+      nextFinishTime: now + (effectiveTrainingTimeSec * 1000),
     };
 
     setTrainingQueue(prev => [...prev, newItem]);
@@ -895,6 +906,8 @@ export default function App() {
     if (isBoosted) {
       durationSec = Math.max(4, Math.round(durationSec / 2));
     }
+    // 100x Hızlandırma (minimum 2 saniye)
+    durationSec = Math.max(2, Math.round(durationSec / GAME_SPEED_MULTIPLIER));
     const now = Date.now();
 
     const newMarch: March = {
@@ -1051,6 +1064,23 @@ export default function App() {
     showBanner(`⛺ Yeni köyünüz '${name}' (${x}|${y}) kuruldu ve beyliğinize katıldı!`);
   };
 
+  const handleAddTestResources = () => {
+    setPlayerVillages(prevVillages => {
+      const added = 100000;
+      return prevVillages.map(v => ({
+        ...v,
+        resources: {
+          wood: (v.resources?.wood || 0) + added,
+          stone: (v.resources?.stone || 0) + added,
+          iron: (v.resources?.iron || 0) + added,
+          grain: (v.resources?.grain || 0) + added,
+          gold: (v.resources?.gold || 0) + (added / 2),
+        }
+      }));
+    });
+    showBanner('⚡ +100.000 Test Kaynağı ortak hazineye aktarıldı!');
+  };
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans selection:bg-amber-800 selection:text-white">
       
@@ -1071,6 +1101,7 @@ export default function App() {
         onOpenKhanModal={() => setIsKhanModalOpen(true)}
         onOpenVictoryModal={() => setIsVictoryPanelOpen(true)}
         onOpenWorkerDrawer={() => setIsWorkerDrawerOpen(true)}
+        onAddTestResources={handleAddTestResources}
         activeMarchesCount={activeMarches.length}
         unreadReportsCount={battleReports.length}
       />

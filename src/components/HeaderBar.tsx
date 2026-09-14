@@ -275,7 +275,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 leading-none mt-0.5">
                     <span className="text-[9px] font-mono text-[#4ade80] font-bold tabular-nums">
-                      +{rates.wood}/s
+                      +{formatNum(rates.wood)}/s
                     </span>
                     <span 
                       className="text-[8px] font-mono text-amber-300 font-bold bg-[#241508] px-1 py-0.2 rounded border border-[#523d26] inline-flex items-center gap-0.5 tracking-tight"
@@ -314,7 +314,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 leading-none mt-0.5">
                     <span className="text-[9px] font-mono text-[#4ade80] font-bold tabular-nums">
-                      +{rates.stone}/s
+                      +{formatNum(rates.stone)}/s
                     </span>
                     <span 
                       className="text-[8px] font-mono text-amber-300 font-bold bg-[#241508] px-1 py-0.2 rounded border border-[#523d26] inline-flex items-center gap-0.5 tracking-tight"
@@ -337,7 +337,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               description="Zırhlar, kılıçlar, mızraklar ve savaş aletleri için kullanılan dövme demir cevheri."
               stats={[
                 { label: 'Mevcut Miktar', value: `${formatNum(village.resources.iron)} / ${formatNum(maxCapacity)}` },
-                { label: 'Saatlik Üretim', value: `+${rates.iron}/saat`, color: 'text-emerald-700' },
+                { label: 'Saatlik Üretim', value: `+${formatNum(rates.iron)}/saat`, color: 'text-emerald-700' },
                 { label: 'Sığınak Koruması', value: `${formatNum(hideoutProtected)} Güvende`, color: 'text-amber-400' },
                 { label: 'Ambar Dolum Süresi', value: `${Math.max(0, Math.round((maxCapacity - village.resources.iron) / Math.max(1, rates.iron)))} saat` }
               ]}
@@ -353,7 +353,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 leading-none mt-0.5">
                     <span className="text-[9px] font-mono text-[#4ade80] font-bold tabular-nums">
-                      +{rates.iron}/s
+                      +{formatNum(rates.iron)}/s
                     </span>
                     <span 
                       className="text-[8px] font-mono text-amber-300 font-bold bg-[#241508] px-1 py-0.2 rounded border border-[#523d26] inline-flex items-center gap-0.5 tracking-tight"
@@ -376,7 +376,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               description="Nüfusun beslenmesi ve ordunun iaşesi için depolanan buğday rezervi. Zahire Ambarı çürümeyi önler."
               stats={[
                 { label: 'Mevcut Miktar', value: `${formatNum(village.resources.grain)} / ${formatNum(maxCapacity)}` },
-                { label: 'Net Üretim (İaşe Düşülmüş)', value: `${rates.grain >= 0 ? '+' : ''}${rates.grain}/saat`, color: rates.grain < 0 ? 'text-red-700' : 'text-emerald-700' },
+                { label: 'Net Üretim (İaşe Düşülmüş)', value: `${rates.grain >= 0 ? '+' : ''}${formatNum(rates.grain)}/saat`, color: rates.grain < 0 ? 'text-red-700' : 'text-emerald-700' },
                 { label: 'Sığınak Koruması', value: `${formatNum(hideoutProtected)} Güvende`, color: 'text-amber-400' },
                 { label: 'Tahıl Koruma Durumu', value: (village.buildings.granary || 0) > 0 ? 'Aktif (Çürüme Engellendi)' : 'Temel Ambar', color: (village.buildings.granary || 0) > 0 ? 'text-emerald-700' : 'text-amber-600' }
               ]}
@@ -392,7 +392,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 leading-none mt-0.5">
                     <span className={`text-[9px] font-mono font-bold tabular-nums ${rates.grain < 0 ? 'text-[#f87171]' : 'text-[#4ade80]'}`}>
-                      {rates.grain >= 0 ? `+${rates.grain}` : rates.grain}/s
+                      {rates.grain >= 0 ? `+${formatNum(rates.grain)}` : formatNum(rates.grain)}/s
                     </span>
                     <span 
                       className="text-[8px] font-mono text-amber-300 font-bold bg-[#241508] px-1 py-0.2 rounded border border-[#523d26] inline-flex items-center gap-0.5 tracking-tight"
@@ -415,7 +415,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               description="Asker maaşları, teknoloji araştırmaları ve pazarda takas için kullanılan sikke."
               stats={[
                 { label: 'Hazine Mevcudu', value: `${formatNum(village.resources.gold)} Akçe` },
-                { label: 'Saatlik Gelir', value: `+${rates.gold}/saat`, color: 'text-yellow-700' },
+                { label: 'Saatlik Gelir', value: `+${formatNum(rates.gold)}/saat`, color: 'text-yellow-700' },
                 { label: 'Sığınak Koruması', value: `${formatNum(hideoutProtected)} Güvende`, color: 'text-amber-400' }
               ]}
               footer="Pazar Yeri ve ticaret kervanları ile hazineyi büyütün."
@@ -430,7 +430,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 leading-none mt-0.5">
                     <span className="text-[9px] font-mono text-yellow-400 font-bold tabular-nums">
-                      +{rates.gold}/s
+                      +{formatNum(rates.gold)}/s
                     </span>
                     <span 
                       className="text-[8px] font-mono text-amber-300 font-bold bg-[#241508] px-1 py-0.2 rounded border border-[#523d26] inline-flex items-center gap-0.5 tracking-tight"
@@ -445,6 +445,22 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
             {/* Dikey Ahşap Ayraç Fitili */}
             <div className="w-[2px] h-7 bg-[#3d2714] border-r border-[#1a0f08] shrink-0" />
+
+            {/* 100x Geliştirici Hızlandırma Modu Rozeti */}
+            <div 
+              title="Geliştirme & Test Modu: Tüm bina inşaatları, asker talimleri, nüfus doğumları, sefer intikalleri ve kaynak akışları 100 kat (100x) hızlandırılmıştır."
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 min-h-[36px] shrink-0 bg-gradient-to-r from-amber-950/80 via-yellow-900/60 to-amber-950/80 border border-amber-400/80 shadow-[0_0_12px_rgba(245,158,11,0.3)] rounded-lg animate-pulse"
+            >
+              <span className="text-amber-300 text-xs font-black">⚡</span>
+              <div className="text-left leading-tight">
+                <div className="text-[11px] font-mono font-black text-amber-300 tracking-wider">
+                  100x HIZ
+                </div>
+                <div className="text-[8px] font-sans font-bold text-amber-200/80 uppercase tracking-tighter hidden sm:block">
+                  Test Modu
+                </div>
+              </div>
+            </div>
 
             {/* Elmas */}
             <ParchmentTooltip

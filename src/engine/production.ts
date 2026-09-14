@@ -24,7 +24,7 @@ import {
   UnitType, 
   Village 
 } from '../types/game';
-import { UNITS, calculateDistance, getHideoutCapacity } from '../data/gameData';
+import { UNITS, calculateDistance, getHideoutCapacity, GAME_SPEED_MULTIPLIER } from '../data/gameData';
 import { getVillageRadius, isNodeWithinRadius } from './radiusEngine';
 import { getNodeEfficiency } from './resourceEngine';
 import { getVillageResourceWorkers, getWorkerProductionMultiplier } from './workerEngine';
@@ -39,13 +39,14 @@ export function getSingleVillageCapacity(village: Village): number {
   const granaryLevel = village.buildings.granary || 0;
   const warehouseLevel = village.buildings.warehouse || 0;
   
-  let capacity = 2000;
+  // Test ve geliştirme modunda (100x) kapasite tavanı genişletilir (5.000.000 taban)
+  const baseCap = 5000000;
+  let capacity = baseCap;
   if (granaryLevel > 0) {
-    // Seviye 1: 3400, Seviye 2: 5600, Seviye 3: 8400... (+%50 katlanarak artan depolama tavanı)
-    capacity = Math.round(2400 * Math.pow(1.5, granaryLevel - 1)) + (granaryLevel * 1000);
+    capacity = Math.round(baseCap * Math.pow(1.5, granaryLevel - 1)) + (granaryLevel * 500000);
   }
   // Depo desteği
-  capacity += warehouseLevel * 1500;
+  capacity += warehouseLevel * 500000;
   
   return capacity;
 }
@@ -54,7 +55,7 @@ export function getSingleVillageCapacity(village: Village): number {
  * Oyuncunun tüm köylerinin ortak ambar kapasitesini hesaplar
  */
 export function calculateTotalSharedCapacity(villages: Village[]): number {
-  if (!villages || villages.length === 0) return 2000;
+  if (!villages || villages.length === 0) return 5000000;
   return villages.reduce((total, v) => total + getSingleVillageCapacity(v), 0);
 }
 
@@ -65,19 +66,19 @@ export function calculateSharedTreasury(villages: Village[]): SharedTreasury {
   const maxCapacity = calculateTotalSharedCapacity(villages);
   if (!villages || villages.length === 0) {
     return {
-      resources: { wood: 1000, stone: 1000, iron: 500, grain: 1500, gold: 500 },
+      resources: { wood: 50000, stone: 50000, iron: 50000, grain: 50000, gold: 25000 },
       maxCapacity,
     };
   }
 
-  // İlk köyün kaynaklarını baz al (veya köylerin kaynaklarından en yükseği)
+  // İlk köyün kaynaklarını baz al
   const primary = villages[0];
   const clampedResources: Resources = {
-    wood: Math.min(maxCapacity, primary.resources.wood || 0),
-    stone: Math.min(maxCapacity, primary.resources.stone || 0),
-    iron: Math.min(maxCapacity, primary.resources.iron || 0),
-    grain: Math.min(maxCapacity, primary.resources.grain || 0),
-    gold: Math.min(maxCapacity, primary.resources.gold || 0),
+    wood: Math.min(maxCapacity, primary.resources?.wood ?? 50000),
+    stone: Math.min(maxCapacity, primary.resources?.stone ?? 50000),
+    iron: Math.min(maxCapacity, primary.resources?.iron ?? 50000),
+    grain: Math.min(maxCapacity, primary.resources?.grain ?? 50000),
+    gold: Math.min(maxCapacity, primary.resources?.gold ?? 25000),
   };
 
   return {
@@ -128,6 +129,13 @@ export function calculateTotalSharedRates(
   const processedNodeIds = new Set<string>();
 
   for (const village of villages) {
+    // Her köyün yerel temel arazisi ve otağından gelen taban üretim (100x test modunda saniyede +100 akış)
+    totalWoodPerHour += 3600;
+    totalStonePerHour += 3600;
+    totalIronPerHour += 3600;
+    totalGrainGrossPerHour += 4500;
+    totalGoldPerHour += 2500;
+
     const captured = getCapturedNodes(village, nodes);
     const workers = getVillageResourceWorkers(village);
 
@@ -206,12 +214,13 @@ export function calculateTotalSharedRates(
 
   const netGrainPerHour = totalGrainGrossPerHour - totalGrainUpkeepPerHour;
 
+  // 100x Hızlandırma Çarpanı (Test Modu)
   return {
-    wood: Math.round(totalWoodPerHour),
-    stone: Math.round(totalStonePerHour),
-    iron: Math.round(totalIronPerHour),
-    grain: Math.round(netGrainPerHour),
-    gold: Math.round(totalGoldPerHour),
+    wood: Math.round(totalWoodPerHour * GAME_SPEED_MULTIPLIER),
+    stone: Math.round(totalStonePerHour * GAME_SPEED_MULTIPLIER),
+    iron: Math.round(totalIronPerHour * GAME_SPEED_MULTIPLIER),
+    grain: Math.round(netGrainPerHour * GAME_SPEED_MULTIPLIER),
+    gold: Math.round(totalGoldPerHour * GAME_SPEED_MULTIPLIER),
   };
 }
 

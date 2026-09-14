@@ -127,8 +127,8 @@ export const QuickMarchModal: React.FC<QuickMarchModalProps> = ({
   const factionMarchMult = (originVillage.faction && FACTIONS[originVillage.faction]?.marchSpeedMultiplier) || 1.0;
   slowestSpeed *= factionMarchMult;
 
-  // İntikal Süresi (saniye ve format)
-  const durationSec = Math.max(8, Math.round((distance / slowestSpeed) * 60));
+  // İntikal Süresi (100x Hızlandırma ile saniye ve format)
+  const durationSec = Math.max(2, Math.round(((distance / slowestSpeed) * 60) / 100));
   const formatDuration = (totalSec: number) => {
     const mins = Math.floor(totalSec / 60);
     const secs = totalSec % 60;

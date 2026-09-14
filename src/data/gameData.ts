@@ -592,8 +592,6 @@ export const UNIT_IMAGE_MAP: Record<UnitType, string> = {
   hafif_suvari: '/drawable/hafif_suvari.webp',
   casus: '/drawable/casus.webp',
   kocbasi: '/drawable/kocbasi.webp',
-  mancinik: '/drawable/kocbasi.webp',
-  top: '/drawable/kocbasi.webp',
   akinci: '/drawable/akinci.webp',
   karaman_alpi: '/drawable/alp.webp',
   gulam: '/drawable/gulam.webp',
@@ -701,64 +699,20 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     category: 'kusatma',
     buildingRequired: 'barracks',
     minBuildingLevel: 5,
-    attackPower: 80,
-    attackInfantry: 80,
-    attackCavalry: 80,
+    attackPower: 150,
+    attackInfantry: 150,
+    attackCavalry: 150,
     defenseInfantry: 30,
     defenseCavalry: 30, // Ağır sur yarma ve taarruz
     isSpecialUnit: false,
     speedScore: 20, // Ağır ve hantal intikal
-    plunderScore: 95, // Kapı ve ambar yarıcı yüksek ganimet taşıma
+    plunderScore: 150, // Muazzam ganimet taşıma kapasitesi
     speedTilesPerMin: 0.90,
-    lootCapacity: 95,
+    lootCapacity: 150,
     grainUpkeepPerHour: 3,
     cost: { wood: 350, stone: 200, iron: 280, grain: 120, gold: 80 },
     trainingTimeSec: 60,
-    description: 'Düşman surlarını yerle bir ederek savunan ordunun duvar koruma çarpanını yıkan ve ambar kapılarını parçalayan yüksek yağma ve taarruz gücüne sahip ağır kuşatma aleti.',
-    image: '/drawable/kocbasi.webp',
-  },
-  mancinik: {
-    id: 'mancinik',
-    name: 'Mancınık',
-    category: 'kusatma',
-    buildingRequired: 'barracks',
-    minBuildingLevel: 6,
-    attackPower: 85,
-    attackInfantry: 85,
-    attackCavalry: 85,
-    defenseInfantry: 25,
-    defenseCavalry: 25, // Muhasara gülle taarruzu
-    isSpecialUnit: false,
-    speedScore: 15, // Ağır muhasara aleti
-    plunderScore: 80, // Yıkılan binalardan yüksek ganimet taşıma
-    speedTilesPerMin: 0.68,
-    lootCapacity: 80,
-    grainUpkeepPerHour: 4,
-    cost: { wood: 450, stone: 350, iron: 200, grain: 100, gold: 90 },
-    trainingTimeSec: 65,
-    description: 'Ağır kaya gülleleriyle düşman surlarını, mabet anıtlarını ve binalarını yerle bir eden muhasara makinesi.',
-    image: '/drawable/kocbasi.webp',
-  },
-  top: {
-    id: 'top',
-    name: 'Şahi Topu',
-    category: 'kusatma',
-    buildingRequired: 'barracks',
-    minBuildingLevel: 8,
-    attackPower: 95,
-    attackInfantry: 95,
-    attackCavalry: 95,
-    defenseInfantry: 20,
-    defenseCavalry: 20, // Devasa tunç gülle tahribatı
-    isSpecialUnit: false,
-    speedScore: 10, // Tunç döküm devasa ağırlık
-    plunderScore: 75, // Kale fethi ve hazine el koyma
-    speedTilesPerMin: 0.45,
-    lootCapacity: 75,
-    grainUpkeepPerHour: 6,
-    cost: { wood: 300, stone: 200, iron: 650, grain: 150, gold: 200 },
-    trainingTimeSec: 90,
-    description: 'Tunç döküm devasa muhasara topu. Sur ve kaleleri en yüksek tahribatla yerle bir eder.',
+    description: 'Düşman surlarını yerle bir eden devasa taarruz gücüne ve yüksek ganimet taşıma kapasitesine sahip ağır kuşatma koçbaşı (150 Saldırı, 150 Ganimet, 20 Hız).',
     image: '/drawable/kocbasi.webp',
   },
   // Özel Faction Birimleri (Her biri toplam 350 Puan ve benzersiz uzmanlık alanı)
@@ -978,6 +932,9 @@ export function getBuildingUpgradeCost(type: BuildingType, currentLevel: number)
   };
 }
 
+// Geliştirme ve Test için Oyun Hızlandırma Çarpanı (100x)
+export const GAME_SPEED_MULTIPLIER = 100;
+
 /**
  * Bir binanın yükseltme süresini (saniye) hesaplama
  */
@@ -986,7 +943,9 @@ export function getBuildingUpgradeDuration(type: BuildingType, currentLevel: num
   const timeMult = Math.pow(def.buildTimeMultiplier, currentLevel);
   // Merkez binası her seviyede inşaat süresini %3 azaltır (min %20)
   const townHallDiscount = Math.max(0.2, 1 - (townHallLevel - 1) * 0.03);
-  return Math.max(5, Math.round(def.baseBuildTimeSec * timeMult * townHallDiscount));
+  const rawDuration = def.baseBuildTimeSec * timeMult * townHallDiscount;
+  // 100x Hızlandırma uygulanmış inşaat süresi (en az 1 saniye)
+  return Math.max(1, Math.round(rawDuration / GAME_SPEED_MULTIPLIER));
 }
 
 /**
@@ -1372,13 +1331,13 @@ export const INITIAL_PLAYER_VILLAGES: Village[] = [
       school: 2,
     },
     resources: {
-      wood: 28670066,
-      stone: 43455819,
-      iron: 277130,
-      grain: 6496753,
-      gold: 5001,
+      wood: 25000,
+      stone: 25000,
+      iron: 20000,
+      grain: 30000,
+      gold: 10000,
     },
-    maxCapacity: 50000000,
+    maxCapacity: 5000000,
     workingPopulation: 45,
     idlePopulation: 28,
     lastPopulationSpawnTimestamp: Date.now() - 300000,

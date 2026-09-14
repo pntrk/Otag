@@ -115,8 +115,6 @@ export type UnitType =
   | 'hafif_suvari'    // Hafif Süvari (Light Cavalry)
   | 'casus'           // Casus (Spy)
   | 'kocbasi'         // Koçbaşı (Battering Ram)
-  | 'mancinik'        // Mancınık (Catapult)
-  | 'top'             // Şahi Topu (Cannon)
   | 'gulam'           // Standart Kışla Lv 3 (Savunma Ağırlıklı Gulam Muhafızı)
   | 'levent'          // Standart Kışla Lv 4 (Dengeli Levent Piyadesi)
   | 'akinci'          // Osman Özel (Akıncı - 300 Puan)

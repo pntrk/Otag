@@ -116,8 +116,8 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
     totalAttackPower *= (1.0 + (khan.skills.attackAura * 1.5) / 100);
   }
 
-  // Sefer süresi (saniye)
-  const durationSec = Math.max(8, Math.round((distance / slowestSpeed) * 60));
+  // Sefer süresi (100x Hızlandırma ile saniye)
+  const durationSec = Math.max(2, Math.round(((distance / slowestSpeed) * 60) / 100));
 
   const handleUnitChange = (uType: UnitType, val: number) => {
     const maxAvailable = village.units[uType] || 0;

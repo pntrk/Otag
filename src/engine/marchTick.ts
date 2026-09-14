@@ -153,7 +153,8 @@ export function recallSupportArmy(
   const dx = targetVillage.x - targetCoords.x;
   const dy = targetVillage.y - targetCoords.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
-  const durationSec = Math.max(10, Math.round(dist * 15));
+  // 100x Hızlandırma uygulanmış intikal süresi (en az 2 saniye)
+  const durationSec = Math.max(2, Math.round((dist * 15) / 100));
 
   const returnMarch: March = {
     id: 'march_ret_' + now + '_' + Math.random().toString(36).substring(2, 6),

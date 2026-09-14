@@ -32,6 +32,7 @@ export interface ResourceHeaderProps {
   onOpenKhanModal?: () => void;
   onOpenVictoryModal?: () => void;
   onOpenWorkerDrawer?: () => void;
+  onAddTestResources?: () => void;
   activeMarchesCount?: number;
   unreadReportsCount?: number;
 }
@@ -49,6 +50,7 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
   onOpenKhanModal,
   onOpenVictoryModal,
   onOpenWorkerDrawer,
+  onAddTestResources,
   activeMarchesCount = 0,
   unreadReportsCount = 0,
 }) => {
@@ -68,7 +70,12 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
   const formatNum = (val: number) => Math.floor(val).toLocaleString('tr-TR');
   const formatRate = (rate: number) => {
     const r = Math.round(rate);
-    return r >= 0 ? `+${r}/s` : `${r}/s`;
+    const perSec = (rate / 3600);
+    const perSecStr = Math.abs(perSec) >= 10 ? Math.round(perSec).toString() : perSec.toFixed(1);
+    return {
+      perHour: r >= 0 ? `+${r.toLocaleString('tr-TR')}/saat` : `${r.toLocaleString('tr-TR')}/saat`,
+      perSec: perSec >= 0 ? `+${perSecStr}/sn` : `${perSecStr}/sn`,
+    };
   };
 
   const resourcesList: {
@@ -225,6 +232,18 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
           {/* SAĞ YUVA: İşçi & Boşta İşçi + Hakan Butonu */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             
+            {/* 100x Hızlandırma Test Modu Rozeti & Anında Kaynak Ekleme */}
+            <button
+              onClick={onAddTestResources}
+              type="button"
+              title="⚡ 100x Hızlandırma Aktif! Tıklayarak anında +100.000 Test Kaynağı ekleyebilirsiniz."
+              className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-amber-400/90 bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 shadow-[0_0_12px_rgba(245,158,11,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 group"
+            >
+              <span className="text-amber-300 text-[10px] sm:text-xs group-hover:rotate-12 transition-transform">⚡</span>
+              <span className="font-mono font-black text-[9px] sm:text-[11px] text-amber-300 tracking-wider">100x</span>
+              <span className="text-[8px] text-amber-200/80 font-mono hidden md:inline group-hover:text-white transition-colors">+KAYNAK</span>
+            </button>
+
             {/* İşçi & İşçi Tahsis Rozeti */}
             <div 
               onClick={onOpenWorkerDrawer}
@@ -283,10 +302,11 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
             const isFull = res.amount >= maxCapacity * 0.95;
             const isNearFull = res.amount >= maxCapacity * 0.85;
 
+            const rateInfo = formatRate(res.rate);
             return (
               <div 
                 key={res.key}
-                title={`${res.name}: ${formatNum(res.amount)} / ${formatNum(maxCapacity)} (Üretim: ${formatRate(res.rate)} • Koruma: ${formatNum(hideoutProtected)})`}
+                title={`${res.name}: ${formatNum(res.amount)} / ${formatNum(maxCapacity)} (Hızlandırılmış Üretim: ${rateInfo.perHour} • ${rateInfo.perSec} • Sığınak Koruması: ${formatNum(hideoutProtected)})`}
                 className={`relative px-1 sm:px-2 py-0.5 sm:py-1 rounded-lg border transition flex items-center justify-between overflow-hidden shadow-inner ${
                   isFull 
                     ? 'border-red-600/80 bg-gradient-to-b from-[#38110c] to-[#1c0806]' 
@@ -315,8 +335,8 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-0.5 sm:gap-1 text-[8px] sm:text-[9px] md:text-[10px] font-mono">
-                    <span className={res.rate >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                      {formatRate(res.rate)}
+                    <span className={res.rate >= 0 ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
+                      {rateInfo.perSec}
                     </span>
                     <span className="text-stone-500 hidden sm:inline">/ {formatNum(maxCapacity)}</span>
                   </div>

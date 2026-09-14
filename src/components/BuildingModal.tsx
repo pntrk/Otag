@@ -644,7 +644,7 @@ function BarracksContent({ village, onTrain }: { village: Village; onTrain: (u: 
   const bLvl = village.buildings.barracks || 0;
 
   // Bu beyliğin kışlasında üretilebilen piyade ve muhasara birlikleri
-  const allBarracksUnits: UnitType[] = ['mizrakli', 'kilicli', 'gulam', 'levent', 'kocbasi', 'mancinik', 'top'];
+  const allBarracksUnits: UnitType[] = ['mizrakli', 'kilicli', 'gulam', 'levent', 'kocbasi'];
   if (faction.specialUnitId && !allBarracksUnits.includes(faction.specialUnitId as UnitType)) {
     allBarracksUnits.push(faction.specialUnitId as UnitType);
   }

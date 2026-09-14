@@ -9,7 +9,8 @@ export function calculateReviveCost(level: number) {
 }
 
 export function calculateReviveDurationSec(level: number) {
-  return level * 180;
+  // 100x Hızlandırma (minimum 2 saniye)
+  return Math.max(2, Math.round((level * 180) / 100));
 }
 
 export function calculateNextLevelXp(level: number) {

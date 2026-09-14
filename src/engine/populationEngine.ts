@@ -29,7 +29,8 @@ export function getPopulationSpawnDuration(village: Village): number {
   const townHallLevel = Math.max(1, village.buildings?.town_hall || 1);
   const discountMultiplier = Math.max(0.30, 1 - (townHallLevel - 1) * TOWN_HALL_SPAWN_REDUCTION_PER_LEVEL);
 
-  return Math.round(baseDuration * discountMultiplier);
+  // 100x Hızlandırma uygulanmış doğum süresi (en az 2 saniye)
+  return Math.max(2, Math.round((baseDuration * discountMultiplier) / 100));
 }
 
 /**

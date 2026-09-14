@@ -100,12 +100,13 @@ export function getForgeUpgradeCost(type: ForgeUpgradeType, targetLevel: number)
  */
 export function getForgeUpgradeDuration(type: ForgeUpgradeType, targetLevel: number, forgeLevel = 1): number {
   const cfg = FORGE_UPGRADE_CONFIGS[type];
-  if (!cfg) return 30;
+  if (!cfg) return 1;
   const mult = Math.pow(cfg.durationMultiplier, Math.max(0, targetLevel - 1));
   const rawSec = cfg.baseDurationSec * mult;
   // Demirci seviyesi indirimi: Her seviye %3 hızlandırır (Maksimum %50 indirim)
   const speedReduction = Math.max(0.5, 1.0 - (Math.max(1, forgeLevel) - 1) * 0.03);
-  return Math.max(10, Math.round(rawSec * speedReduction));
+  // 100x Hızlandırma (minimum 1 saniye)
+  return Math.max(1, Math.round((rawSec * speedReduction) / 100));
 }
 
 /**
