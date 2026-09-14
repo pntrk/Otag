@@ -497,52 +497,94 @@ export const UnitDetailModal: React.FC<{ unitDef: UnitDefinition; onClose: () =>
             </div>
           </div>
 
-          {/* Combat & Tactical Attributes Grid - 4 Ana Unsur Sistemi */}
+          {/* Combat & Tactical Attributes Grid - 5 Temel Puan Gücü Sistemi */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                <Swords className="w-4 h-4" /> 4 Ana Muharebe Niteliği
+                <Swords className="w-4 h-4" /> 5 Temel Puan Gücü (Maksimum 100 Bar)
               </h3>
               <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded border ${
                 unitDef.isSpecialUnit
                   ? 'bg-amber-950/80 text-amber-300 border-amber-600/70'
                   : 'bg-stone-800 text-stone-300 border-stone-700'
               }`}>
-                {unitDef.isSpecialUnit ? '⭐ Özel Beylik Askeri (300 P)' : 'Standart Ordu (200 P)'}
+                {unitDef.isSpecialUnit ? '⭐ Özel Beylik Askeri' : 'Standart Ordu Askeri'}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+            <div className="grid grid-cols-3 gap-2 text-xs font-mono">
               <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
-                <span className="text-stone-400 text-[10px]">Piyade Saldırısı</span>
-                <span className="text-red-400 font-bold text-base mt-0.5">{unitDef.attackInfantry ?? unitDef.attackPower}</span>
-              </div>
-              <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
-                <span className="text-stone-400 text-[10px]">Süvari Saldırısı</span>
-                <span className="text-orange-400 font-bold text-base mt-0.5">{unitDef.attackCavalry ?? unitDef.attackPower}</span>
+                <span className="text-stone-400 text-[10px]">Saldırı Gücü</span>
+                <span className="text-red-400 font-bold text-base mt-0.5">{unitDef.attackPower} <span className="text-[10px] text-stone-500 font-normal">/100</span></span>
+                <div className="mt-1 h-1.5 w-full bg-stone-900 rounded-full overflow-hidden border border-stone-800">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-red-600 to-rose-400"
+                    style={{ width: `${Math.min(100, Math.max(0, unitDef.attackPower))}%` }}
+                  />
+                </div>
               </div>
               <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
                 <span className="text-stone-400 text-[10px]">Piyade Savunması</span>
-                <span className="text-blue-400 font-bold text-base mt-0.5">{unitDef.defenseInfantry}</span>
+                <span className="text-blue-400 font-bold text-base mt-0.5">{unitDef.defenseInfantry} <span className="text-[10px] text-stone-500 font-normal">/100</span></span>
+                <div className="mt-1 h-1.5 w-full bg-stone-900 rounded-full overflow-hidden border border-stone-800">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-blue-600 to-sky-400"
+                    style={{ width: `${Math.min(100, Math.max(0, unitDef.defenseInfantry))}%` }}
+                  />
+                </div>
               </div>
               <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
                 <span className="text-stone-400 text-[10px]">Süvari Savunması</span>
-                <span className="text-cyan-400 font-bold text-base mt-0.5">{unitDef.defenseCavalry}</span>
+                <span className="text-cyan-400 font-bold text-base mt-0.5">{unitDef.defenseCavalry} <span className="text-[10px] text-stone-500 font-normal">/100</span></span>
+                <div className="mt-1 h-1.5 w-full bg-stone-900 rounded-full overflow-hidden border border-stone-800">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-teal-400"
+                    style={{ width: `${Math.min(100, Math.max(0, unitDef.defenseCavalry))}%` }}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-xs font-mono mt-2">
-              <div className="p-2 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
-                <span className="text-stone-400 text-[10px]">Hız (Tile / Dk)</span>
-                <span className="text-yellow-400 font-bold text-sm mt-0.5">{unitDef.speedTilesPerMin}</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono mt-2">
+              <div className="p-2.5 bg-stone-950 rounded-lg border border-amber-900/40 flex flex-col justify-between">
+                <div>
+                  <span className="text-amber-300 text-[10px] flex items-center gap-1 font-sans font-bold">⚡ Sefer Hızı</span>
+                  <span className="text-yellow-400 font-bold text-base mt-0.5 block">{unitDef.speedScore ?? 50} <span className="text-[10px] text-stone-500 font-normal">/100</span></span>
+                </div>
+                <div className="mt-1">
+                  <div className="relative h-1.5 w-full bg-stone-900 rounded-full overflow-hidden border border-amber-950 p-[1px]">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-300 transition-all duration-500"
+                      style={{ width: `${Math.min(100, Math.max(0, unitDef.speedScore ?? 50))}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-stone-400 font-sans block mt-0.5">({unitDef.speedTilesPerMin} kare/dk)</span>
+                </div>
               </div>
-              <div className="p-2 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
-                <span className="text-stone-400 text-[10px]">Yük Kapasitesi</span>
-                <span className="text-emerald-400 font-bold text-sm mt-0.5">{unitDef.lootCapacity}</span>
+              <div className="p-2.5 bg-stone-950 rounded-lg border border-amber-900/40 flex flex-col justify-between">
+                <div>
+                  <span className="text-yellow-400 text-[10px] flex items-center gap-1 font-sans font-bold">💰 Ganimet Kapasitesi</span>
+                  <span className="text-emerald-400 font-bold text-base mt-0.5 block">{unitDef.plunderScore ?? 50} <span className="text-[10px] text-stone-500 font-normal">/100</span></span>
+                </div>
+                <div className="mt-1">
+                  <div className="relative h-1.5 w-full bg-stone-900 rounded-full overflow-hidden border border-amber-950 p-[1px]">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-yellow-600 via-amber-400 to-emerald-400 transition-all duration-500"
+                      style={{ width: `${Math.min(100, Math.max(0, unitDef.plunderScore ?? 50))}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-stone-400 font-sans block mt-0.5">({unitDef.lootCapacity} yük/birim)</span>
+                </div>
               </div>
-              <div className="p-2 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
+              <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
                 <span className="text-stone-400 text-[10px]">Tahıl İaşesi</span>
-                <span className="text-amber-400 font-bold text-sm mt-0.5">-{unitDef.grainUpkeepPerHour} / saat</span>
+                <span className="text-amber-400 font-bold text-base mt-0.5">-{unitDef.grainUpkeepPerHour} <span className="text-[10px] text-stone-500 font-normal">/saat</span></span>
+                <span className="text-[9px] text-stone-500 font-sans">Garnizon tüketimi</span>
+              </div>
+              <div className="p-2.5 bg-stone-950 rounded-lg border border-stone-800 flex flex-col">
+                <span className="text-stone-400 text-[10px]">Sınıf</span>
+                <span className="text-stone-200 font-bold text-xs mt-1 capitalize">{unitDef.category}</span>
+                <span className="text-[9px] text-stone-500 font-sans">{unitDef.category === 'suvari' ? 'Atlı Birlik' : unitDef.category === 'kusatma' ? 'Ağır Kuşatma' : 'Piyade Birlik'}</span>
               </div>
             </div>
           </div>

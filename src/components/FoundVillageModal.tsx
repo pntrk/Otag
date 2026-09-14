@@ -56,12 +56,10 @@ export const FoundVillageModal: React.FC<FoundVillageModalProps> = ({
   const currentCount = playerVillages.length;
   const canFoundNew = currentCount < maxAllowedVillages && currentCount < 10;
 
-  // Başlangıç koordinatı: prefilled yoksa aktif köyün yakınında geçerli bir kara noktası bul
+  // Başlangıç koordinatı
   const initialCoord = useMemo(() => {
     if (prefilledCoords) return prefilledCoords;
-    const testCoord = { x: activeVillage.x + 3, y: activeVillage.y + 2 };
-    if (!collisionDataMap.isWater(testCoord.x, testCoord.y)) return testCoord;
-    return collisionDataMap.findNearestValidLand(testCoord.x, testCoord.y);
+    return { x: activeVillage.x + 3, y: activeVillage.y + 2 };
   }, [prefilledCoords, activeVillage.x, activeVillage.y]);
 
   // Form durumları
@@ -77,25 +75,15 @@ export const FoundVillageModal: React.FC<FoundVillageModalProps> = ({
   const hasEnoughGold = activeVillage.resources.gold >= FOUND_VILLAGE_COST.gold;
   const hasEnoughResources = hasEnoughWood && hasEnoughStone && hasEnoughIron && hasEnoughGrain && hasEnoughGold;
 
-  // 1000x500 Harita Sınır ve Su Kontrolü
+  // 1000x500 Harita Sınır Kontrolü
   const isOutOfBounds = coordX < 0 || coordX > 1000 || coordY < 0 || coordY > 500;
   const isOccupiedByPlayer = playerVillages.some(v => v.x === coordX && v.y === coordY);
   const isOccupiedByRival = rivalVillages.some(v => v.x === coordX && v.y === coordY);
   const isSpotOccupied = isOccupiedByPlayer || isOccupiedByRival;
 
-  // Gerçek GIS Coğrafi Su / Kara Kontrolü
-  const isWater = collisionDataMap.isWater(coordX, coordY);
   const biomeInfo = collisionDataMap.getPixelInfo(coordX, coordY);
-
-  const isValidPlacement = !isOutOfBounds && !isSpotOccupied && !isWater && villageName.trim().length > 0;
+  const isValidPlacement = !isOutOfBounds && !isSpotOccupied && villageName.trim().length > 0;
   const canSubmit = canFoundNew && hasEnoughResources && isValidPlacement;
-
-  // En yakın geçerli karayı bul ve koordinatları oraya zıplat
-  const handleSnapToNearestLand = () => {
-    const nearest = collisionDataMap.findNearestValidLand(coordX, coordY);
-    setCoordX(nearest.x);
-    setCoordY(nearest.y);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,43 +218,19 @@ export const FoundVillageModal: React.FC<FoundVillageModalProps> = ({
                   </div>
                 </div>
 
-                {/* Biyom ve Su Durumu Canlı Bilgilendirmesi */}
+                {/* Biyom Durumu Canlı Bilgilendirmesi */}
                 <div className="mt-2.5 space-y-1.5">
-                  {isWater ? (
-                    <div className="p-3 bg-gradient-to-r from-[#0c2238] to-[#061424] border-2 border-cyan-500/80 rounded-xl text-xs text-sky-200 flex items-start justify-between gap-3 shadow-lg animate-fade-in">
-                      <div className="flex items-start gap-2">
-                        <Waves className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-bold text-cyan-300 font-serif">
-                            🌊 Deniz / Göl Suları Seçildi ({coordX} | {coordY})
-                          </div>
-                          <p className="text-[11px] text-sky-200/90 leading-relaxed font-serif mt-0.5">
-                            Anadolu sahilleri ve gölleri üzerine yerleşim kurulamaz. Otağ yalnızca karasal araziye iskân edilebilir.
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleSnapToNearestLand}
-                        className="shrink-0 px-3 py-1.5 bg-gradient-to-b from-[#0284c7] to-[#0369a1] hover:brightness-110 text-white rounded-lg text-xs font-serif font-black transition flex items-center gap-1 border border-cyan-300 cursor-pointer shadow active:scale-95"
-                      >
-                        <Navigation className="w-3 h-3" />
-                        <span>Karaya Yerleş</span>
-                      </button>
+                  <div className="px-3 py-2 bg-[#0c1c11] border-2 border-[#166534] rounded-xl text-xs text-emerald-300 flex items-center justify-between font-serif shadow-inner">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span><strong>Geçerli İskân Alanı:</strong> ({coordX}|{coordY}) açık ve verimli ova.</span>
                     </div>
-                  ) : (
-                    <div className="px-3 py-2 bg-[#0c1c11] border-2 border-[#166534] rounded-xl text-xs text-emerald-300 flex items-center justify-between font-serif shadow-inner">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span><strong>Geçerli Karasal İskân Alanı:</strong> ({coordX}|{coordY}) verimli toprak.</span>
-                      </div>
-                      {biomeInfo.factionZone !== 'neutral' && biomeInfo.factionZone !== 'water' && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 font-mono text-emerald-200 font-bold">
-                          {FACTIONS[biomeInfo.factionZone]?.name || biomeInfo.factionZone} Toprağı
-                        </span>
-                      )}
-                    </div>
-                  )}
+                    {biomeInfo.factionZone !== 'neutral' && biomeInfo.factionZone !== 'water' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 font-mono text-emerald-200 font-bold">
+                        {FACTIONS[biomeInfo.factionZone]?.name || biomeInfo.factionZone} Toprağı
+                      </span>
+                    )}
+                  </div>
 
                   {/* Koordinat Doluluk Uyarıları */}
                   {isSpotOccupied && (
@@ -341,7 +305,7 @@ export const FoundVillageModal: React.FC<FoundVillageModalProps> = ({
               }`}
             >
               <Sparkles className="w-4 h-4 text-yellow-300" />
-              <span>{isWater ? 'Suya Otağ Kurulamaz' : 'KÖYÜ KUR VE İSKÂNI BAŞLAT'}</span>
+              <span>KÖYÜ KUR VE İSKÂNI BAŞLAT</span>
             </button>
           </div>
 

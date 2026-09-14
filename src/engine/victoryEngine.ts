@@ -89,7 +89,7 @@ export function checkAllianceVictory(
     progressRatio,
     victoryDate: isVictory ? new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : undefined,
     announcementText: isVictory 
-      ? `"${alliance.name} İttifakı, 10. Seviye Umaykut mabetlerini tamamlayarak cihan hâkimiyetini ilan etmiştir!"`
+      ? `"${alliance.name} İttifakı, 10. Seviye Zafer mabetlerini tamamlayarak cihan hâkimiyetini ilan etmiştir!"`
       : undefined,
   };
 }

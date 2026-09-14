@@ -261,11 +261,11 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
               </button>
             )}
 
-            {/* Zafer / Umaykut Anıtı Rozeti */}
+            {/* Zafer / Zafer Mabedi Rozeti */}
             {onOpenVictoryModal && (
               <button
                 onClick={onOpenVictoryModal}
-                title="Cihan Hâkimiyeti & Umaykut Zafer Divanı"
+                title="Cihan Hâkimiyeti & Zafer Divanı"
                 className="p-1 sm:px-2 sm:py-1 rounded-lg border border-[#855e2d] bg-[#221307] hover:border-amber-400 text-amber-300 hover:text-amber-100 transition cursor-pointer shadow-md flex items-center gap-1 active:scale-95 touch-manipulation"
               >
                 <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />

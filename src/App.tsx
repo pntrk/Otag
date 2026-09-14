@@ -954,14 +954,9 @@ export default function App() {
       return;
     }
 
-    // 1. Sınır ve Coğrafi Su Kontrolü
+    // 1. Sınır Kontrolü
     if (x < 0 || x > 1000 || y < 0 || y > 500) {
       showBanner(`❌ İskan Hatası: (${x}, ${y}) harita sınırları dışındadır.`);
-      return;
-    }
-
-    if (collisionDataMap.isWater(x, y)) {
-      showBanner(`❌ İskan Hatası: (${x}, ${y}) koordinatı deniz veya göl suları üzerindedir. Otağ veya köy yalnızca karasal alana kurulabilir!`);
       return;
     }
 
@@ -1213,7 +1208,7 @@ export default function App() {
       {/* Oyun Başlangıcı Zorunlu Beylik Seçimi (Gatekeeper) */}
       {!lockedFaction && (
         <FactionSelectModal 
-          currentFaction="osmanogullari"
+          currentFaction={undefined}
           onSelectFaction={handleInitialFactionSelect}
           onClose={() => {}}
           isMandatory={true}

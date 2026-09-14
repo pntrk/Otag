@@ -390,7 +390,7 @@ export const UmaykutTopHud: React.FC<UmaykutTopHudProps> = ({
         {/* Yardım Butonu (?) */}
         <button
           onClick={() => setShowHelp(h => !h)}
-          title="Umaykut Harita & Kaynak Rehberi"
+          title="Taktik Harita & Kaynak Rehberi"
           className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-b from-[#6b4724] via-[#45270f] to-[#201004] border sm:border-2 border-[#caa05a] text-[#fcedc7] hover:text-white hover:scale-105 shadow-xl flex items-center justify-center font-serif font-black text-xs sm:text-sm cursor-pointer transition active:scale-95 touch-manipulation"
         >
           ?
@@ -403,7 +403,7 @@ export const UmaykutTopHud: React.FC<UmaykutTopHudProps> = ({
           <div className="flex items-center justify-between pb-2 border-b border-[#5c401f]">
             <span className="font-black text-[#f5d78a] flex items-center gap-1.5 text-sm">
               <HelpCircle className="w-4 h-4 text-amber-400" />
-              Umaykut Taktik Harita Rehberi
+              Taktik Harita Rehberi
             </span>
             <button onClick={() => setShowHelp(false)} className="text-amber-300 hover:text-white cursor-pointer text-sm font-bold">✕</button>
           </div>

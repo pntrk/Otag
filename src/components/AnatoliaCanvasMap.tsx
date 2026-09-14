@@ -145,10 +145,10 @@ function generateAnatoliaResourceNodes(seedNodes: ResourceNode[]): ResourceNode[
     gold: ['Altın Kum Havzası', 'Kuvars Altın Damarı', 'Dere Yatağı Simi', 'Kıymetli Maden Ocağı', 'Gümüş Damarı']
   };
 
-  // Hedeflenen geçerli karasal kaynak düğümü sayısı (Deniz ve göller kesinlikle atlanır)
-  const TARGET_NODES = 3200;
+  // Hedeflenen geçerli karasal kaynak düğümü sayısı (Tüm düz haritaya yayılır)
+  const TARGET_NODES = 3500;
   let attempts = 0;
-  while (result.length < TARGET_NODES && attempts < 35000) {
+  while (result.length < TARGET_NODES && attempts < 40000) {
     attempts++;
     const x = Math.floor(pseudoRandom() * (WORLD_WIDTH - 10)) + 5;
     const y = Math.floor(pseudoRandom() * (WORLD_HEIGHT - 10)) + 5;
@@ -156,9 +156,6 @@ function generateAnatoliaResourceNodes(seedNodes: ResourceNode[]): ResourceNode[
 
     if (occupied.has(key)) continue;
     occupied.add(key);
-
-    // KESİN COĞRAFİ SU KONTROLÜ: Karadeniz, Akdeniz, Ege, Marmara ve Göllere kaynak düşemez!
-    if (collisionDataMap.isWater(x, y)) continue;
     if (isTooClose(x, y)) continue;
 
     const type = types[Math.floor(pseudoRandom() * types.length)];
@@ -1700,15 +1697,10 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
               </div>
             </div>
           ) : (
-            /* DİĞER SEÇİLİ KARELER (DÜŞMAN KÖYÜ, OTLUK, SU) */
+            /* DİĞER SEÇİLİ KARELER (DÜŞMAN KÖYÜ, OTLUK / ÇAYIR) */
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
               <div className="text-xs font-serif leading-relaxed">
-                {selectedBiome?.isWater ? (
-                  <span className="text-sky-300 font-bold flex items-center gap-1">
-                    <Droplets className="w-3.5 h-3.5 text-sky-400" />
-                    🌊 Deniz / Göl Alanı (Geçersiz Su Kütlesi - Yerleşim Kurulamaz)
-                  </span>
-                ) : selectedPlayerV ? (
+                {selectedPlayerV ? (
                   <span className="text-emerald-300 font-bold">
                     🏰 {selectedPlayerV.name} (Kendi Otağınız • Merkez Lv.{selectedPlayerV.buildings.town_hall || 1})
                   </span>
@@ -1718,7 +1710,7 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
                   </span>
                 ) : (
                   <span className="text-[#decab0]">
-                    🌿 <strong className="text-[#f5d78a]">Verimli Çayır</strong> (İskana ve Yeni Otağ Kurmaya Uygun
+                    🌿 <strong className="text-[#f5d78a]">Verimli Açık Çayır</strong> (İskana ve Yeni Otağ Kurmaya Uygun
                     {selectedBiome?.factionZone && selectedBiome.factionZone !== 'neutral' && selectedBiome.factionZone !== 'water' && (
                       <span className="text-amber-300 font-bold ml-1">
                         • {FACTIONS[selectedBiome.factionZone]?.name || selectedBiome.factionZone} Toprağı
@@ -1751,22 +1743,7 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
                   </button>
                 )}
 
-                {selectedBiome?.isWater && (
-                  <button
-                    onClick={() => {
-                      const nearest = collisionDataMap.findNearestValidLand(selectedTile.x, selectedTile.y);
-                      setSelectedTile(nearest);
-                      setCamera({ x: nearest.x, y: nearest.y });
-                    }}
-                    className="px-3.5 py-1.5 bg-gradient-to-b from-[#0e7490] to-[#155e75] hover:brightness-110 text-white rounded-lg text-xs font-serif font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md border border-cyan-400 hover:scale-105 active:scale-95"
-                    title="En yakın karasal alana git"
-                  >
-                    <Compass className="w-3.5 h-3.5 text-cyan-200" />
-                    <span>En Yakın Karaya Git</span>
-                  </button>
-                )}
-
-                {!selectedPlayerV && !selectedRival && !selectedBiome?.isWater && onOpenFoundVillageModal && (
+                {!selectedPlayerV && !selectedRival && onOpenFoundVillageModal && (
                   <button
                     onClick={() => onOpenFoundVillageModal({ x: selectedTile.x, y: selectedTile.y })}
                     className="px-3.5 py-1.5 bg-gradient-to-r from-[#14532d] to-[#052e16] hover:brightness-110 text-white rounded-lg text-xs font-serif font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.8)] border border-[#86efac]/80 hover:scale-105 active:scale-95 active:translate-y-0.5"

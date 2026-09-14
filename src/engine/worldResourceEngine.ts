@@ -138,7 +138,6 @@ export function generateAllWorldResourceNodes(): ResourceNode[] {
         const key = `${jx},${jy}`;
 
         if (occupied.has(key)) continue;
-        if (collisionDataMap.isWater(jx, jy)) continue;
 
         occupied.add(key);
 
@@ -188,7 +187,7 @@ export function ensureNearbyResourcesForVillage(
   const toAdd: ResourceNode[] = [];
   cluster.forEach(node => {
     const key = `${node.x},${node.y}`;
-    if (!existingKeys.has(key) && !collisionDataMap.isWater(node.x, node.y)) {
+    if (!existingKeys.has(key)) {
       existingKeys.add(key);
       toAdd.push(node);
     }

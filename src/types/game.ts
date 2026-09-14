@@ -130,14 +130,17 @@ export interface UnitDefinition {
   name: string;
   category: 'piyade' | 'suvari' | 'istihbarat' | 'kusatma';
   factionRequired?: FactionId;
+  allowedFactions?: FactionId[]; // Üretilebildiği beylikler listesi
   buildingRequired: BuildingType;
   minBuildingLevel: number;
-  attackPower: number;        // Ortalama Saldırı Gücü
-  attackInfantry: number;     // Piyade Saldırısı
-  attackCavalry: number;      // Süvari Saldırısı
-  defenseInfantry: number;    // Piyade Savunması
-  defenseCavalry: number;     // Süvari Savunması
-  isSpecialUnit?: boolean;    // Beylik Özel Askeri mi? (Özel: 300 puan, Normal: 200 puan)
+  attackPower: number;        // Tekil Saldırı Gücü (0 - 100)
+  attackInfantry?: number;    // Geriye uyumluluk için
+  attackCavalry?: number;     // Geriye uyumluluk için
+  defenseInfantry: number;    // Piyade Savunması (0 - 100)
+  defenseCavalry: number;     // Süvari Savunması (0 - 100)
+  isSpecialUnit?: boolean;    // Beylik Özel Askeri mi?
+  speedScore: number;         // Hız Puanı (0 - 100)
+  plunderScore: number;       // Ganimet Puanı (0 - 100)
   speedTilesPerMin: number;
   lootCapacity: number;
   grainUpkeepPerHour: number;

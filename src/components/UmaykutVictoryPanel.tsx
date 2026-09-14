@@ -167,14 +167,14 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm sm:text-xl font-black text-[#f7e4b5] tracking-wider uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
-                  CİHAN HÂKİMİYETİ & UMAYKUT DİVANI
+                  CİHAN HÂKİMİYETİ & ZAFER DİVANI
                 </h2>
                 <span className="bg-[#4d3215] text-[#fcd34d] border border-[#a87c3e] px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-mono font-bold shadow">
                   [{alliance.tag}] {alliance.name}
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-[#d1b894] mt-0.5">
-                Umaykut Online Sezon Zaferi: 3 Farklı Beylikten 10. Seviye Umaykut Mabetleri
+                Sezon Zaferi: 3 Farklı Beylikten 10. Seviye Zafer Mabetleri
               </p>
             </div>
           </div>
@@ -260,10 +260,10 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
                       <span>Resmi Sezon Zaferi Koşulu</span>
                     </div>
                     <h3 className="text-lg font-black text-[#fde68a] mt-1 font-serif">
-                      10. Seviye Umaykut Binası İttifak Zaferi
+                      10. Seviye Zafer Mabedi İttifak Zaferi
                     </h3>
                     <p className="text-xs text-[#d1b894] max-w-xl mt-1 leading-relaxed">
-                      İttifakınız bünyesindeki <strong>farklı beyliklere mensup en az 3 oyuncu</strong> payitaht merkez köylerindeki <strong>Umaykut Binasını 10. Seviyeye</strong> tamamladığında çağ sona erer ve ittifakınız cihan hâkimiyetini kazanır!
+                      İttifakınız bünyesindeki <strong>farklı beyliklere mensup en az 3 oyuncu</strong> payitaht merkez köylerindeki <strong>Zafer Mabedini 10. Seviyeye</strong> tamamladığında çağ sona erer ve ittifakınız cihan hâkimiyetini kazanır!
                     </p>
                   </div>
 
@@ -311,7 +311,7 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
                   </div>
                 ) : (
                   <div className="mt-3 flex items-center justify-between text-[11px] text-[#a89070]">
-                    <span>💡 İpucu: Merkez köyünüzdeki Seviye 10 Merkez Binası üzerine Umaykut Binasını kurup 10. seviyeye ulaştırın.</span>
+                    <span>💡 İpucu: Merkez köyünüzdeki Seviye 10 Merkez Binası üzerine Zafer Mabedini kurup 10. seviyeye ulaştırın.</span>
                     <button
                       onClick={handleSimulateVictory}
                       title="Zafer koşullarını ve altın varaklı tuğra kutlama ekranını test etmek için tıkla"
@@ -327,7 +327,7 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
               <div>
                 <h4 className="text-xs font-bold text-[#decab0] uppercase tracking-wider mb-2 flex items-center gap-2">
                   <ScrollText className="w-4 h-4 text-amber-400" />
-                  <span>Anadolu Beylikleri Umaykut Mabet Durumu (5 Beylik)</span>
+                  <span>Anadolu Beylikleri Zafer Mabet Durumu (5 Beylik)</span>
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -518,9 +518,9 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3 self-end sm:self-auto">
-                        {/* Umaykut Durumu */}
+                        {/* Zafer Mabedi Durumu */}
                         <div className="text-right">
-                          <div className="text-[9px] text-[#a89070]">Umaykut Mabedi</div>
+                          <div className="text-[9px] text-[#a89070]">Zafer Mabedi</div>
                           <div className={`text-xs font-mono font-bold ${
                             member.umaykutLevel >= 10 ? 'text-[#ffd700]' : 'text-amber-400'
                           }`}>
@@ -612,7 +612,7 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
                               <span>•</span>
                               <span>Okul: <strong>+{cand.schoolLevels}</strong></span>
                               <span>•</span>
-                              <span>Umaykut Seviyesi: <strong>{cand.umaykutLevel}/10</strong></span>
+                              <span>Mabet Seviyesi: <strong>{cand.umaykutLevel}/10</strong></span>
                             </div>
                           </div>
                         </div>
@@ -650,7 +650,7 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
         <div className="p-3 bg-[#140b04] border-t-2 border-[#5e4120] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#decab0]">
           <div className="flex items-center gap-2">
             <span className="text-amber-400">📜</span>
-            <span>Umaykut Online Resmî İttifak Yasası: 3 Farklı Beylik × 10. Seviye Umaykut Mabetleri</span>
+            <span>Resmî İttifak Yasası: 3 Farklı Beylik × 10. Seviye Zafer Mabetleri</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -662,7 +662,7 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
                 }}
                 className="px-3 py-1 bg-[#3d2410] hover:bg-[#5a3418] border border-[#a87c3e] text-[#ffd700] rounded font-bold transition cursor-pointer"
               >
-                🏛️ Umaykut Mabedini Aç
+                🏛️ Zafer Mabedini Aç
               </button>
             )}
           </div>
@@ -698,10 +698,10 @@ export const UmaykutVictoryPanel: React.FC<UmaykutVictoryPanelProps> = ({
             {/* İttifak Şampiyonluk Ferman Metni */}
             <div className="p-4 bg-[#140b03]/90 rounded-xl border-2 border-[#b8860b] text-xs sm:text-sm text-[#fef3c7] leading-relaxed my-4 space-y-2 shadow-inner">
               <p className="font-bold text-base text-amber-200">
-                "{alliance.name} [{alliance.tag}] İttifakı, 10. Seviye Umaykut mabetlerini tamamlayarak cihan hâkimiyetini ilan etmiştir!"
+                "{alliance.name} [{alliance.tag}] İttifakı, 10. Seviye Zafer mabetlerini tamamlayarak cihan hâkimiyetini ilan etmiştir!"
               </p>
               <p className="text-xs text-[#d1b894]">
-                Anadolu topraklarındaki 3 farklı ulu beyliğin kutlu beyleri el ele vererek Umaykut mabetlerini göğe yükseltmiş, çağı zaferle noktalamışlardır.
+                Anadolu topraklarındaki 3 farklı ulu beyliğin kutlu beyleri el ele vererek Zafer mabetlerini göğe yükseltmiş, çağı zaferle noktalamışlardır.
               </p>
             </div>
 

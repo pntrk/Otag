@@ -267,7 +267,7 @@ export const FACTIONS: Record<FactionId, FactionInfo> = {
     leader: 'Karamanoğlu Mehmed Bey',
     capital: 'Larende (Karaman)',
     crestIcon: '⚔️',
-    flagImage: '/assets/flags/karaman.webp',
+    flagImage: '/assets/flags/karaman.webp?v=2',
     color: '#1e3a8a',
     secondaryColor: '#eff6ff',
     description: 'Selçuklu mirasının kudretli varisi. Saldırı ağırlıklı çelik bilekli alpleri ve sarsılmaz taarruz gücüyle Orta Anadolu\'nun kalbi.',
@@ -279,7 +279,7 @@ export const FACTIONS: Record<FactionId, FactionInfo> = {
     leader: 'Karamanoğlu Mehmed Bey',
     capital: 'Larende (Karaman)',
     crestIcon: '⚔️',
-    flagImage: '/assets/flags/karaman.webp',
+    flagImage: '/assets/flags/karaman.webp?v=2',
     color: '#1e3a8a',
     secondaryColor: '#eff6ff',
     description: 'Selçuklu mirasının kudretli varisi. Saldırı ağırlıklı çelik bilekli alpleri ve sarsılmaz taarruz gücüyle Orta Anadolu\'nun kalbi.',
@@ -291,7 +291,7 @@ export const FACTIONS: Record<FactionId, FactionInfo> = {
     leader: 'I. Yakub Bey',
     capital: 'Kütahya',
     crestIcon: '🛡️',
-    flagImage: '/assets/flags/germiyan.webp',
+    flagImage: '/assets/flags/germiyan.webp?v=2',
     color: '#059669',
     secondaryColor: '#ecfdf5',
     description: 'Kütahya Kalesi ve aşılmaz kalkan duvarlarıyla batı sınırlarını tutan, savunma ağırlıklı sur tahkimatında rakipsiz beylik.',
@@ -303,7 +303,7 @@ export const FACTIONS: Record<FactionId, FactionInfo> = {
     leader: 'I. Yakub Bey',
     capital: 'Kütahya',
     crestIcon: '🛡️',
-    flagImage: '/assets/flags/germiyan.webp',
+    flagImage: '/assets/flags/germiyan.webp?v=2',
     color: '#059669',
     secondaryColor: '#ecfdf5',
     description: 'Kütahya Kalesi ve aşılmaz kalkan duvarlarıyla batı sınırlarını tutan, savunma ağırlıklı sur tahkimatında rakipsiz beylik.',
@@ -315,7 +315,7 @@ export const FACTIONS: Record<FactionId, FactionInfo> = {
     leader: 'Umur Bey',
     capital: 'Birgi',
     crestIcon: '⛵',
-    flagImage: '/assets/flags/germiyan.webp',
+    flagImage: '/assets/flags/germiyan.webp?v=2',
     color: '#047857',
     secondaryColor: '#ecfdf5',
     description: 'Ege kıyılarında ve nehir vadilerinde denizci leventleriyle fırtına gibi esen, hücum gücü ve ticaret geliri yüksek beylik.',
@@ -532,7 +532,7 @@ export const BUILDINGS: Record<BuildingType, BuildingDefinition> = {
   },
   umaykut: {
     type: 'umaykut',
-    name: 'Umaykut Binası (Cihan Mabedi)',
+    name: 'Zafer Mabedi (Cihan Mabedi)',
     description: 'Beyliğin kudret ve hükümranlık timsali olan ulu mabet. Yalnızca 10 köyün tamamını kurmuş beylerin payitaht merkez köyünde Seviye 10 Merkez Binası üzerine kademeli inşa edilebilir. 3 farklı beylikten 10. seviyeye ulaştıran ittifak cihan hâkimiyetini ilan eder.',
     icon: '🦅',
     image: '/assets/buildings/town_hall.webp',
@@ -608,60 +608,69 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     id: 'mizrakli',
     name: 'Mızraklı Muhafız',
     category: 'piyade',
+    allowedFactions: ['germiyanogullari', 'dulkadirogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 1,
-    attackPower: 15,
-    attackInfantry: 15,
-    attackCavalry: 15,
-    defenseInfantry: 60,
-    defenseCavalry: 110, // Süvarilere karşı ölümcül savunma (Toplam: 200 Puan)
+    attackPower: 40,
+    attackInfantry: 40,
+    attackCavalry: 40,
+    defenseInfantry: 65,
+    defenseCavalry: 95, // Süvarilere karşı ölümcül savunma (Maksimum bar 100 ölçeği)
     isSpecialUnit: false,
-    speedTilesPerMin: 1.8,
-    lootCapacity: 25,
+    speedScore: 50, // Piyade: Ağır kalkan ve kargı intikali
+    plunderScore: 30, // Temel savunma eri ganimeti
+    speedTilesPerMin: 2.25,
+    lootCapacity: 30,
     grainUpkeepPerHour: 1,
     cost: { wood: 60, stone: 40, iron: 20, grain: 30, gold: 10 },
     trainingTimeSec: 15,
-    description: 'Düşman atlı taarruzlarını karşılayan, süvarilere karşı muazzam savunma değerine sahip temel savunma askeri.',
+    description: 'Germiyan ve Dulkadir beyliklerinin temel muhafızı. Süvarilere karşı muazzam savunma değerine sahip (40 Saldırı, 65 Piyade Sav., 95 Süvari Sav.).',
     image: '/drawable/mizrakli.webp',
   },
   kilicli: {
     id: 'kilicli',
     name: 'Kılıçlı Piyade',
     category: 'piyade',
+    allowedFactions: ['karamanogullari', 'candarogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 2,
-    attackPower: 55,
-    attackInfantry: 75,
-    attackCavalry: 35,
-    defenseInfantry: 60,
-    defenseCavalry: 30, // Standart piyade saldırı ve müdafaası (Toplam: 200 Puan)
+    attackPower: 65,
+    attackInfantry: 65,
+    attackCavalry: 65,
+    defenseInfantry: 65,
+    defenseCavalry: 40, // Standart piyade saldırı ve müdafaası
     isSpecialUnit: false,
-    speedTilesPerMin: 1.6,
-    lootCapacity: 45,
+    speedScore: 55, // Standart piyade intikal hızı
+    plunderScore: 50, // Dengeli meydan ganimeti
+    speedTilesPerMin: 2.48,
+    lootCapacity: 50,
     grainUpkeepPerHour: 1,
     cost: { wood: 80, stone: 50, iron: 90, grain: 40, gold: 20 },
     trainingTimeSec: 22,
-    description: 'Sağlam zırhı ve yalman kılıcıyla hem taarruzda hem piyade savunmasında dengeli temel hücum gücü.',
+    description: 'Karaman ve Candar beyliklerinin kılıçlı piyadesi. Sağlam zırhı ve yalman kılıcıyla dengeli hücum gücü (65 Saldırı, 65 Piyade Sav., 40 Süvari Sav.).',
     image: '/drawable/kilicli.webp',
   },
   hafif_suvari: {
     id: 'hafif_suvari',
     name: 'Hafif Süvari',
     category: 'suvari',
+    allowedFactions: ['karamanogullari', 'germiyanogullari', 'candarogullari', 'dulkadirogullari'],
     buildingRequired: 'stables',
     minBuildingLevel: 1,
     attackPower: 70,
     attackInfantry: 70,
     attackCavalry: 70,
-    defenseInfantry: 25,
-    defenseCavalry: 35, // Çevik süvari hücumu (Toplam: 200 Puan)
+    defenseInfantry: 40,
+    defenseCavalry: 55, // Çevik süvari savunması
     isSpecialUnit: false,
-    speedTilesPerMin: 3.5,
-    lootCapacity: 80,
+    speedScore: 90, // Süvari: Çevik keşif ve akın atlısı
+    plunderScore: 85, // Yüksek yağma ve ganimet heybesi
+    speedTilesPerMin: 4.05,
+    lootCapacity: 85,
     grainUpkeepPerHour: 2,
     cost: { wood: 140, stone: 70, iron: 130, grain: 100, gold: 40 },
     trainingTimeSec: 35,
-    description: 'Hızlı hareket kabiliyeti ve yüksek yük taşıma kapasitesiyle yağma seferlerinin vazgeçilmez atlısı.',
+    description: 'Karaman, Germiyan, Candar ve Dulkadir beyliklerinin çevik süvarisi. Hızlı hareket kabiliyeti ve dengeli müdafaasıyla (70 Taarruz, 40 Piyade Sav., 55 Süvari Sav., 90 Hız) seferlerin vazgeçilmezidir.',
     image: '/drawable/hafif_suvari.webp',
   },
   casus: {
@@ -670,12 +679,14 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     category: 'istihbarat',
     buildingRequired: 'watchtower',
     minBuildingLevel: 1,
-    attackPower: 25,
-    attackInfantry: 25,
-    attackCavalry: 25,
-    defenseInfantry: 75,
-    defenseCavalry: 75, // İstihbarat ve gizlilik müdafaası (Toplam: 200 Puan)
+    attackPower: 15,
+    attackInfantry: 15,
+    attackCavalry: 15,
+    defenseInfantry: 70,
+    defenseCavalry: 70, // İstihbarat ve gizlilik müdafaası
     isSpecialUnit: false,
+    speedScore: 95, // Hızlı istihbarat ve haberci atlısı
+    plunderScore: 0, // Gizli keşif, ganimet taşımaz
     speedTilesPerMin: 4.5,
     lootCapacity: 0,
     grainUpkeepPerHour: 1,
@@ -691,17 +702,19 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     buildingRequired: 'barracks',
     minBuildingLevel: 5,
     attackPower: 80,
-    attackInfantry: 100,
-    attackCavalry: 60,
-    defenseInfantry: 20,
-    defenseCavalry: 20, // Ağır sur yarma ve taarruz (Saldırı: 160, Savunma: 40, Toplam: 200 Puan)
+    attackInfantry: 80,
+    attackCavalry: 80,
+    defenseInfantry: 30,
+    defenseCavalry: 30, // Ağır sur yarma ve taarruz
     isSpecialUnit: false,
-    speedTilesPerMin: 1.0,
-    lootCapacity: 0,
+    speedScore: 20, // Ağır ve hantal intikal
+    plunderScore: 95, // Kapı ve ambar yarıcı yüksek ganimet taşıma
+    speedTilesPerMin: 0.90,
+    lootCapacity: 95,
     grainUpkeepPerHour: 3,
     cost: { wood: 350, stone: 200, iron: 280, grain: 120, gold: 80 },
     trainingTimeSec: 60,
-    description: 'Düşman surlarını yerle bir ederek savunan ordunun duvar koruma çarpanını yıkan yüksek taarruz gücüne sahip ağır kuşatma aleti.',
+    description: 'Düşman surlarını yerle bir ederek savunan ordunun duvar koruma çarpanını yıkan ve ambar kapılarını parçalayan yüksek yağma ve taarruz gücüne sahip ağır kuşatma aleti.',
     image: '/drawable/kocbasi.webp',
   },
   mancinik: {
@@ -710,18 +723,20 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     category: 'kusatma',
     buildingRequired: 'barracks',
     minBuildingLevel: 6,
-    attackPower: 80,
-    attackInfantry: 100,
-    attackCavalry: 60,
-    defenseInfantry: 20,
-    defenseCavalry: 20, // Muhasara gülle taarruzu (Toplam: 200 Puan)
+    attackPower: 85,
+    attackInfantry: 85,
+    attackCavalry: 85,
+    defenseInfantry: 25,
+    defenseCavalry: 25, // Muhasara gülle taarruzu
     isSpecialUnit: false,
-    speedTilesPerMin: 1.2,
-    lootCapacity: 0,
+    speedScore: 15, // Ağır muhasara aleti
+    plunderScore: 80, // Yıkılan binalardan yüksek ganimet taşıma
+    speedTilesPerMin: 0.68,
+    lootCapacity: 80,
     grainUpkeepPerHour: 4,
     cost: { wood: 450, stone: 350, iron: 200, grain: 100, gold: 90 },
     trainingTimeSec: 65,
-    description: 'Ağır kaya gülleleriyle düşman surlarını, Umaykut anıtlarını ve binalarını yerle bir eden muhasara makinesi.',
+    description: 'Ağır kaya gülleleriyle düşman surlarını, mabet anıtlarını ve binalarını yerle bir eden muhasara makinesi.',
     image: '/drawable/kocbasi.webp',
   },
   top: {
@@ -730,80 +745,91 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     category: 'kusatma',
     buildingRequired: 'barracks',
     minBuildingLevel: 8,
-    attackPower: 90,
-    attackInfantry: 110,
-    attackCavalry: 70,
-    defenseInfantry: 10,
-    defenseCavalry: 10, // Devasa tunç gülle tahribatı (Toplam: 200 Puan)
+    attackPower: 95,
+    attackInfantry: 95,
+    attackCavalry: 95,
+    defenseInfantry: 20,
+    defenseCavalry: 20, // Devasa tunç gülle tahribatı
     isSpecialUnit: false,
-    speedTilesPerMin: 0.9,
-    lootCapacity: 0,
+    speedScore: 10, // Tunç döküm devasa ağırlık
+    plunderScore: 75, // Kale fethi ve hazine el koyma
+    speedTilesPerMin: 0.45,
+    lootCapacity: 75,
     grainUpkeepPerHour: 6,
     cost: { wood: 300, stone: 200, iron: 650, grain: 150, gold: 200 },
     trainingTimeSec: 90,
     description: 'Tunç döküm devasa muhasara topu. Sur ve kaleleri en yüksek tahribatla yerle bir eder.',
     image: '/drawable/kocbasi.webp',
   },
-  // Özel Faction Birimleri (Her biri toplam tam 300 Puan)
+  // Özel Faction Birimleri (Her biri toplam 350 Puan ve benzersiz uzmanlık alanı)
   akinci: {
     id: 'akinci',
     name: 'Akıncı',
     category: 'suvari',
     factionRequired: 'osmanogullari',
+    allowedFactions: ['osmanogullari'],
     buildingRequired: 'stables',
     minBuildingLevel: 2,
-    attackPower: 75,
-    attackInfantry: 75,
-    attackCavalry: 75,
-    defenseInfantry: 75,
-    defenseCavalry: 75, // Dengeli Beylik (Saldırı: 150, Savunma: 150, Toplam: 300 Puan)
+    attackPower: 70,
+    attackInfantry: 70,
+    attackCavalry: 70,
+    defenseInfantry: 55,
+    defenseCavalry: 70, // Yıldırım Sefer & Akın
     isSpecialUnit: true,
-    speedTilesPerMin: 4.2, // Çok hızlı
-    lootCapacity: 110, // Çok yüksek yağma
+    speedScore: 95, // Süvari: Yıldırım sefer hızı (Oyunun en hızlısı)
+    plunderScore: 90, // Uç akını ve yüksek ganimet kapasitesi
+    speedTilesPerMin: 4.28,
+    lootCapacity: 90,
     grainUpkeepPerHour: 2,
     cost: { wood: 160, stone: 80, iron: 150, grain: 120, gold: 60 },
     trainingTimeSec: 40,
-    description: 'Osmanoğulları\'nın efsanevi uç gazisi. Dengeli orta ayar yapısıyla (150 Saldırı / 150 Savunma) hem yıldırım taarruzunda hem meydan müdafaasında kusursuzdur.',
+    description: 'Osmanoğulları\'nın efsanevi uç gazisi. Yıldırım intikal hızı, dengeli savunması ve ganimet kapasitesiyle (70 Saldırı, 55 Piyade Sav., 70 Süvari Sav., 95 Hız, 90 Ganimet) seferlerde ve çatışmalarda etkilidir.',
     image: '/drawable/akinci.webp',
   },
   gulam: {
     id: 'gulam',
     name: 'Gulam Muhafızı',
     category: 'piyade',
+    allowedFactions: ['karamanogullari', 'candarogullari', 'osmanogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 3,
-    attackPower: 45,
-    attackInfantry: 45,
-    attackCavalry: 45,
-    defenseInfantry: 80,
-    defenseCavalry: 90, // Standart Savunma Ağırlıklı Piyade (Kışla Seviye 3 - 215 Puan)
+    attackPower: 55,
+    attackInfantry: 55,
+    attackCavalry: 55,
+    defenseInfantry: 85,
+    defenseCavalry: 80, // Savunma Ağırlıklı Piyade (Kışla Seviye 3)
     isSpecialUnit: false,
-    speedTilesPerMin: 1.6,
-    lootCapacity: 35,
+    speedScore: 45, // Ağır çelik zırhlı hassa muhafızı
+    plunderScore: 45, // Muhafız ganimet yükü
+    speedTilesPerMin: 2.00,
+    lootCapacity: 45,
     grainUpkeepPerHour: 1,
     cost: { wood: 100, stone: 80, iron: 140, grain: 60, gold: 40 },
     trainingTimeSec: 30,
-    description: 'Ağır çelik zırhlı ve kalkanlı hassa muhafız piyadesi. Yüksek müdafaa gücüyle cepheyi sarsılmaz kılar.',
+    description: 'Osman, Karaman ve Candar beyliklerinin ağır çelik zırhlı ve kalkanlı hassa muhafız piyadesi. Yüksek müdafaa gücüyle (55 Saldırı, 85 Piyade Sav., 80 Süvari Sav.) cepheyi sarsılmaz kılar.',
     image: '/drawable/gulam.webp',
   },
   levent: {
     id: 'levent',
     name: 'Levent Piyadesi',
     category: 'piyade',
+    allowedFactions: ['osmanogullari', 'germiyanogullari', 'dulkadirogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 4,
-    attackPower: 65,
-    attackInfantry: 70,
-    attackCavalry: 65,
+    attackPower: 80,
+    attackInfantry: 80,
+    attackCavalry: 80,
     defenseInfantry: 65,
-    defenseCavalry: 70, // Standart Dengeli Piyade (Kışla Seviye 4 - 205 Puan)
+    defenseCavalry: 65, // Güçlü Hücum Piyadesi (Kışla Seviye 4)
     isSpecialUnit: false,
-    speedTilesPerMin: 2.0,
-    lootCapacity: 50,
+    speedScore: 65, // Çevik gazi piyadesi
+    plunderScore: 60, // Etkili kıyı ve kara akını ganimeti
+    speedTilesPerMin: 2.93,
+    lootCapacity: 60,
     grainUpkeepPerHour: 1,
     cost: { wood: 110, stone: 60, iron: 130, grain: 70, gold: 45 },
     trainingTimeSec: 32,
-    description: 'Mızrak ve pala kullanan çevik gazi piyade. Dengeli taarruz ve savunma kabiliyetiyle her türlü harekâta uyum sağlar.',
+    description: 'Osman, Germiyan ve Dulkadir beyliklerinin çevik taarruz piyadesi. Yüksek saldırı gücü ve çevikliğiyle (80 Saldırı, 65 Piyade Sav., 65 Süvari Sav., 65 Hız, 60 Ganimet) ön safta düşman hatlarını yarar.',
     image: '/drawable/levent.webp',
   },
   karaman_alpi: {
@@ -811,20 +837,23 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     name: 'Alp',
     category: 'piyade',
     factionRequired: 'karamanogullari',
+    allowedFactions: ['karamanogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 2,
     attackPower: 95,
-    attackInfantry: 105,
-    attackCavalry: 85,
+    attackInfantry: 95,
+    attackCavalry: 95,
     defenseInfantry: 60,
-    defenseCavalry: 50, // Karamanoğulları Özel Birimi (Saldırı: 190, Savunma: 110, Toplam: 300 Puan)
+    defenseCavalry: 55, // Karamanoğulları Özel Birimi (Saf Taarruz Gücü)
     isSpecialUnit: true,
-    speedTilesPerMin: 1.6,
-    lootCapacity: 40,
+    speedScore: 60, // Yalman kılıçlı taarruz alpi
+    plunderScore: 70, // Ordugah ve çadır yağması
+    speedTilesPerMin: 2.70,
+    lootCapacity: 70,
     grainUpkeepPerHour: 2,
     cost: { wood: 100, stone: 90, iron: 180, grain: 80, gold: 70 },
     trainingTimeSec: 36,
-    description: 'Karamanoğulları\'nın çelik zırhlı taarruz alpi. Saldırı ağırlıklı donatımı ve yalman kılıcıyla düşman kalkanlarını yarmakta rakipsizdir.',
+    description: 'Karamanoğulları\'nın çelik zırhlı taarruz alpi. Saf taarruz gücü ve yalman kılıcıyla (95 Saldırı, 60 Piyade Sav., 55 Süvari Sav., 60 Hız, 70 Ganimet) ön safta düşman kalkanlarını yarmakta rakipsizdir.',
     image: '/drawable/alp.webp',
   },
   tura: {
@@ -832,20 +861,23 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     name: 'Tura',
     category: 'piyade',
     factionRequired: 'germiyanogullari',
+    allowedFactions: ['germiyanogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 2,
-    attackPower: 45,
-    attackInfantry: 45,
-    attackCavalry: 45,
+    attackPower: 50,
+    attackInfantry: 50,
+    attackCavalry: 50,
     defenseInfantry: 95,
-    defenseCavalry: 115, // Savunma Ağırlıklı Beylik (Savunma: 210, Saldırı: 90, Toplam: 300 Puan)
+    defenseCavalry: 95, // Germiyanoğulları Özel Birimi (Aşılmaz Çifte Müdafaa)
     isSpecialUnit: true,
-    speedTilesPerMin: 1.6,
-    lootCapacity: 35,
+    speedScore: 45, // Ağır kalkanlı sur muhafızı
+    plunderScore: 65, // Savunma eri ganimeti
+    speedTilesPerMin: 2.03,
+    lootCapacity: 65,
     grainUpkeepPerHour: 2,
     cost: { wood: 90, stone: 80, iron: 150, grain: 70, gold: 50 },
     trainingTimeSec: 35,
-    description: 'Germiyan hisarlarının aşılmaz kalkan ve mızrak muhafızı. Savunma ağırlıklı yapısıyla kale kapılarını ve surlarını canı pahasına savunur.',
+    description: 'Germiyan hisarlarının aşılmaz kalkan ve mızrak muhafızı. Sarsılmaz savunmasıyla (50 Saldırı, 95 Piyade Sav., 95 Süvari Sav., 45 Hız, 65 Ganimet) kale kapılarını ve surlarını canı pahasına korur.',
     image: '/drawable/mizrakli.webp',
   },
   kure_baltacisi: {
@@ -853,20 +885,23 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     name: 'Baltacı',
     category: 'piyade',
     factionRequired: 'candarogullari',
+    allowedFactions: ['candarogullari'],
     buildingRequired: 'barracks',
     minBuildingLevel: 3,
-    attackPower: 98,
-    attackInfantry: 110,
-    attackCavalry: 85,
-    defenseInfantry: 55,
-    defenseCavalry: 50, // Saldırı Ağırlıklı Beylik (Saldırı: 195, Savunma: 105, Toplam: 300 Puan)
+    attackPower: 90,
+    attackInfantry: 90,
+    attackCavalry: 90,
+    defenseInfantry: 60,
+    defenseCavalry: 50, // Candaroğulları Özel Birimi (Mutlak Ganimet & Ağır Hasar)
     isSpecialUnit: true,
-    speedTilesPerMin: 1.5,
-    lootCapacity: 40,
+    speedScore: 50, // Madenci ağır baltacısı
+    plunderScore: 100, // Oyunun en yüksek ganimet taşıma kapasitesi
+    speedTilesPerMin: 2.25,
+    lootCapacity: 100,
     grainUpkeepPerHour: 2,
     cost: { wood: 80, stone: 110, iron: 190, grain: 70, gold: 50 },
     trainingTimeSec: 36,
-    description: 'Küre Dağları\'nın çeliğiyle dövülmüş çift ağızlı madenci baltalarına sahip saldırı ağırlıklı zırh delici ağır taarruz birliği.',
+    description: 'Küre Dağları\'nın çeliğiyle dövülmüş çift ağızlı madenci baltalarına sahip zırh ve ambar yarıcı taarruz birliği (90 Saldırı, 60 Piyade Sav., 50 Süvari Sav., 50 Hız, 100 Ganimet).',
     image: '/drawable/kure_baltacisi.webp',
   },
   bozok_suvarisi: {
@@ -874,23 +909,37 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
     name: 'Bozok Süvarisi',
     category: 'suvari',
     factionRequired: 'dulkadirogullari',
+    allowedFactions: ['dulkadirogullari'],
     buildingRequired: 'stables',
     minBuildingLevel: 2,
-    attackPower: 55,
-    attackInfantry: 55,
-    attackCavalry: 55,
-    defenseInfantry: 105,
-    defenseCavalry: 85, // Savunma Ağırlıklı Beylik (Savunma: 190, Saldırı: 110, Toplam: 300 Puan)
+    attackPower: 65,
+    attackInfantry: 65,
+    attackCavalry: 65,
+    defenseInfantry: 85,
+    defenseCavalry: 80, // Dulkadiroğulları Özel Birimi (Zırhlı Atlı Savunma)
     isSpecialUnit: true,
-    speedTilesPerMin: 3.8,
-    lootCapacity: 75,
+    speedScore: 80, // Zırhlı Toros Bozok atlısı
+    plunderScore: 40, // Yayla akın ve heybe kapasitesi
+    speedTilesPerMin: 3.60,
+    lootCapacity: 40,
     grainUpkeepPerHour: 2,
     cost: { wood: 180, stone: 70, iron: 120, grain: 130, gold: 60 },
     trainingTimeSec: 38,
-    description: 'Dulkadir yaylalarının savunma ağırlıklı atlı muhafızı. Yayla siperlerinde at üstünde menzilli oklama ve müdafaa taktiğiyle düşman saflarını püskürtür.',
+    description: 'Dulkadir yaylalarının zırhlı savunma atlısı (65 Saldırı, 85 Piyade Sav., 80 Süvari Sav., 80 Hız, 40 Ganimet). Yayla siperlerinde at sırtında müdafaa taktiğiyle düşman süvari ve piyadelerini durdurur.',
     image: '/drawable/bozok_suvarisi.webp',
   },
 };
+
+/**
+ * Bir askeri birimin belirli bir beylik tarafından eğitilip eğitilemeyeceğini kontrol eder.
+ */
+export function isUnitProducibleByFaction(unitType: UnitType, factionId: FactionId): boolean {
+  const def = UNITS[unitType];
+  if (!def) return false;
+  if (def.factionRequired && def.factionRequired !== factionId) return false;
+  if (def.allowedFactions && !def.allowedFactions.includes(factionId)) return false;
+  return true;
+}
 
 /**
  * Köyün Merkez Binası Seviyesine göre Etki Yarıçapı (Çap) Hesaplama

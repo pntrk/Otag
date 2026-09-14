@@ -116,14 +116,22 @@ export const DispatchMarchModal: React.FC<DispatchMarchModalProps> = ({
   // Seçilen birliklerin hesaplanması
   let totalTroopCount = 0;
   let slowestSpeed = 999;
+  let slowestSpeedScore = 100;
+  let totalLootCapacity = 0;
+  let totalPlunderScoreSum = 0;
 
   for (const [uKey, count] of Object.entries(selectedUnits)) {
     const num = Number(count) || 0;
     if (num > 0) {
       totalTroopCount += num;
       const unitDef = UNITS[uKey as UnitType];
-      if (unitDef && unitDef.speedTilesPerMin < slowestSpeed) {
-        slowestSpeed = unitDef.speedTilesPerMin;
+      if (unitDef) {
+        if (unitDef.speedTilesPerMin < slowestSpeed) {
+          slowestSpeed = unitDef.speedTilesPerMin;
+          slowestSpeedScore = unitDef.speedScore ?? 50;
+        }
+        totalLootCapacity += num * unitDef.lootCapacity;
+        totalPlunderScoreSum += num * (unitDef.plunderScore ?? 50);
       }
     }
   }
@@ -131,7 +139,9 @@ export const DispatchMarchModal: React.FC<DispatchMarchModalProps> = ({
   // Eğer hiçbir birlik seçilmediyse varsayılan piyade hızı
   if (slowestSpeed === 999) {
     slowestSpeed = 1.8;
+    slowestSpeedScore = 50;
   }
+  const avgPlunderScore = totalTroopCount > 0 ? Math.round(totalPlunderScoreSum / totalTroopCount) : 0;
 
   // Beylik sefer hızı çarpanı
   const factionMarchMult = (currentOriginVillage.faction && FACTIONS[currentOriginVillage.faction]?.marchSpeedMultiplier) || 1.0;
@@ -336,6 +346,18 @@ export const DispatchMarchModal: React.FC<DispatchMarchModalProps> = ({
                   </span>
                 </div>
 
+                {/* Ordu Hız ve Yağma Göstergeleri */}
+                <div className="grid grid-cols-2 gap-2 border-t border-[#26170a] pt-1.5 font-mono text-[11px]">
+                  <div className="flex items-center justify-between bg-[#150d07] px-2 py-1 rounded border border-[#3e2715]">
+                    <span className="text-amber-400/90 font-serif flex items-center gap-1">⚡ Ordu Hızı:</span>
+                    <span className="text-amber-300 font-bold">{totalTroopCount > 0 ? slowestSpeedScore : '-'}/100</span>
+                  </div>
+                  <div className="flex items-center justify-between bg-[#150d07] px-2 py-1 rounded border border-[#3e2715]">
+                    <span className="text-yellow-400/90 font-serif flex items-center gap-1">💰 Yağma Kapasitesi:</span>
+                    <span className="text-yellow-300 font-bold">{totalLootCapacity.toLocaleString()}</span>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between gap-2 border-t border-[#26170a] pt-1.5">
                   <span className="text-[#a89476] flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-rose-400" />
@@ -410,9 +432,16 @@ export const DispatchMarchModal: React.FC<DispatchMarchModalProps> = ({
                     </div>
 
                     {/* Birlik Adı */}
-                    <span className="text-[10px] font-serif font-bold text-amber-100 text-center truncate w-full mb-1">
+                    <span className="text-[10px] font-serif font-bold text-amber-100 text-center truncate w-full">
                       {uDef.name}
                     </span>
+
+                    {/* Hız ve Yağma Puanı */}
+                    <div className="flex items-center justify-center gap-1 text-[9px] font-mono mb-1 text-stone-400">
+                      <span className="text-amber-300" title="Hız Puanı">⚡{uDef.speedScore ?? 50}</span>
+                      <span className="text-stone-500">•</span>
+                      <span className="text-yellow-400" title="Yağma Puanı">💰{uDef.plunderScore ?? 50}</span>
+                    </div>
 
                     {/* Sayı Giriş Kutusu */}
                     <input

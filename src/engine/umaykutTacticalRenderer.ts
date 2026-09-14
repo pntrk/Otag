@@ -656,7 +656,7 @@ export class UmaykutTacticalRenderer {
   }
 
   /**
-   * 1. ÇAYIR ZEMİNİ & ANADOLU HARİTASI ÇİZİMİ
+   * 1. ÇAYIR ZEMİNİ & GENİŞ DÜZ OVA HARİTASI ÇİZİMİ
    */
   public static renderTerrain(
     ctx: CanvasRenderingContext2D,
@@ -673,85 +673,16 @@ export class UmaykutTacticalRenderer {
 
     ctx.save();
     
-    // Deniz Tabanı
-    ctx.fillStyle = '#16283b';
+    // Doğal Çayır Çimeni Tabanı (Tüm ekran alabildiğine düz ve kesintisiz yeşil ova)
+    if (this.grassPattern) {
+      ctx.fillStyle = this.grassPattern;
+    } else {
+      ctx.fillStyle = '#688c38';
+    }
     ctx.fillRect(0, 0, width, height);
 
-    // Deniz Dalga Efektleri
-    ctx.strokeStyle = 'rgba(70, 130, 180, 0.12)';
-    ctx.lineWidth = 1;
-    const waveStep = Math.max(24, Math.floor(tileSize * 2.5));
-    for (let y = 0; y < height; y += waveStep) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      for (let x = 0; x < width; x += 50) {
-        ctx.quadraticCurveTo(x + 25, y - 4, x + 50, y);
-      }
-      ctx.stroke();
-    }
-
-    // Anadolu Karasal Kıyı Poligonu (Mikro Çayır Çimeni)
-    const coast = this.cachedCoastline;
-    if (coast && coast.length > 2) {
-      ctx.beginPath();
-      const p0 = worldToScreen(coast[0].x, coast[0].y);
-      ctx.moveTo(p0.sx, p0.sy);
-      for (let i = 1; i < coast.length; i++) {
-        const pt = worldToScreen(coast[i].x, coast[i].y);
-        ctx.lineTo(pt.sx, pt.sy);
-      }
-      ctx.closePath();
-
-      if (this.grassPattern) {
-        ctx.fillStyle = this.grassPattern;
-      } else {
-        ctx.fillStyle = '#688c38';
-      }
-      ctx.fill();
-
-      // Kıyı Şeridi & Kumsal Sahil
-      ctx.strokeStyle = '#c9b17f';
-      ctx.lineWidth = Math.max(1.6, 2.2 * (tileSize / 32));
-      ctx.stroke();
-    }
-
-    // İç Göller
-    this.cachedLakes.forEach(lake => {
-      if (!lake.points || lake.points.length < 3) return;
-      ctx.beginPath();
-      const lp0 = worldToScreen(lake.points[0].x, lake.points[0].y);
-      ctx.moveTo(lp0.sx, lp0.sy);
-      for (let i = 1; i < lake.points.length; i++) {
-        const lpt = worldToScreen(lake.points[i].x, lake.points[i].y);
-        ctx.lineTo(lpt.sx, lpt.sy);
-      }
-      ctx.closePath();
-      ctx.fillStyle = lake.color;
-      ctx.fill();
-      ctx.strokeStyle = lake.isSalt ? '#cbd5e1' : '#b59e70';
-      ctx.lineWidth = 1.0;
-      ctx.stroke();
-    });
-
-    // Nehirler
-    ctx.strokeStyle = 'rgba(56, 140, 220, 0.70)';
-    ctx.lineWidth = Math.max(1.2, 1.8 * (tileSize / 32));
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    this.cachedRivers.forEach(river => {
-      if (!river.points || river.points.length < 2) return;
-      ctx.beginPath();
-      const rp0 = worldToScreen(river.points[0].x, river.points[0].y);
-      ctx.moveTo(rp0.sx, rp0.sy);
-      for (let i = 1; i < river.points.length; i++) {
-        const rpt = worldToScreen(river.points[i].x, river.points[i].y);
-        ctx.lineTo(rpt.sx, rpt.sy);
-      }
-      ctx.stroke();
-    });
-
-    // Çayır Çiçekleri
-    if (tileSize >= 20) {
+    // Çayır Çiçekleri ve Doğal Detaylar
+    if (tileSize >= 16) {
       for (let tx = Math.floor(minX); tx <= Math.ceil(maxX); tx += 1) {
         for (let ty = Math.floor(minY); ty <= Math.ceil(maxY); ty += 1) {
           const hash = ((tx * 374761393) ^ (ty * 668265263)) >>> 0;

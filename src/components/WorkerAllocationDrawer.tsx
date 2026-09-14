@@ -522,11 +522,11 @@ export const WorkerAllocationDrawer: React.FC<WorkerAllocationDrawerProps> = ({
             })}
           </div>
 
-          {/* Umaykut Online Kural ve Formül Bilgilendirme Kutusu */}
+          {/* Beylik Kural ve Formül Bilgilendirme Kutusu */}
           <div className="p-3 rounded-xl bg-gradient-to-br from-[#1c1208] to-[#120a04] border border-[#5c3e1e] text-[11px] text-[#decab0] space-y-1.5 shadow-md">
             <div className="flex items-center gap-1.5 font-bold text-[#f5d78a] text-xs">
               <Info className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Umaykut Online Maden ve Ahali Kuralları</span>
+              <span>Maden ve Ahali Hüküm Kuralları</span>
             </div>
             <ul className="list-disc list-inside space-y-1 text-[#bfa988] leading-relaxed">
               <li>

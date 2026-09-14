@@ -220,22 +220,21 @@ export const Warrior3DCard: React.FC<Warrior3DCardProps> = ({
           {unitDef && (
             <div className="pt-1.5 border-t border-stone-900 space-y-1 text-[10px] font-mono">
               <div className="flex items-center justify-between text-stone-300">
-                <span className="flex items-center gap-1 text-red-400">
+                <span className="flex items-center gap-1 text-red-400 font-bold">
                   <Swords className="w-3 h-3 text-red-400" />
-                  Sal: {unitDef.attackInfantry ?? unitDef.attackPower}P / {unitDef.attackCavalry ?? unitDef.attackPower}S
+                  Sal: {unitDef.attackPower}
                 </span>
                 <span className="flex items-center gap-1 text-blue-400">
                   <Shield className="w-3 h-3 text-blue-400" />
                   Sav: {unitDef.defenseInfantry}P / {unitDef.defenseCavalry}S
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[9px] text-stone-500">
-                <span className="text-amber-400/90 font-bold">
-                  {unitDef.isSpecialUnit ? '⭐ Özel Beylik (300 P)' : 'Standart (200 P)'}
+              <div className="flex items-center justify-between text-[9px]">
+                <span className="text-amber-300 font-bold">
+                  ⚡ Hız: {unitDef.speedScore ?? 50}/100
                 </span>
-                <span className="flex items-center gap-0.5 text-emerald-400">
-                  <Package className="w-2.5 h-2.5" />
-                  Yük: {unitDef.lootCapacity}
+                <span className="flex items-center gap-0.5 text-yellow-400 font-bold">
+                  💰 Ganimet: {unitDef.plunderScore ?? 50}/100
                 </span>
               </div>
             </div>
@@ -293,36 +292,83 @@ export const Warrior3DCard: React.FC<Warrior3DCardProps> = ({
                 </p>
               )}
 
-              {/* 4 Ana Unsur Puan Dağılımı */}
+              {/* 5 Temel Puan Gücü Dağılımı */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-stone-400 font-mono text-[10px] uppercase tracking-wider font-bold">
-                    4 Ana Unsur Muharebe Dağılımı
+                    5 Temel Puan Gücü (Maksimum 100 Bar)
                   </span>
                   <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                     unitDef?.isSpecialUnit
                       ? 'bg-amber-950/80 text-amber-300 border-amber-600/80'
                       : 'bg-stone-900 text-stone-300 border-stone-800'
                   }`}>
-                    {unitDef?.isSpecialUnit ? '⭐ Özel Beylik Askeri: Toplam 300 Puan' : 'Standart Asker: Toplam 200 Puan'}
+                    {unitDef?.isSpecialUnit ? '⭐ Özel Beylik Askeri' : 'Standart Ordu Askeri'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
+                <div className="grid grid-cols-3 gap-2 font-mono">
                   <div className="p-2 bg-stone-900 rounded border border-stone-800 text-center">
-                    <span className="text-stone-500 block text-[10px]">Piyade Saldırısı</span>
-                    <strong className="text-red-400 text-sm">{unitDef?.attackInfantry ?? unitDef?.attackPower}</strong>
+                    <span className="text-stone-400 block text-[10px]">Saldırı Gücü</span>
+                    <strong className="text-red-400 text-sm">{unitDef?.attackPower} / 100</strong>
+                    <div className="mt-1 h-1.5 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-red-600 to-rose-400"
+                        style={{ width: `${Math.min(100, Math.max(0, unitDef?.attackPower || 0))}%` }}
+                      />
+                    </div>
                   </div>
                   <div className="p-2 bg-stone-900 rounded border border-stone-800 text-center">
-                    <span className="text-stone-500 block text-[10px]">Süvari Saldırısı</span>
-                    <strong className="text-orange-400 text-sm">{unitDef?.attackCavalry ?? unitDef?.attackPower}</strong>
+                    <span className="text-stone-400 block text-[10px]">Piyade Savunması</span>
+                    <strong className="text-blue-400 text-sm">{unitDef?.defenseInfantry} / 100</strong>
+                    <div className="mt-1 h-1.5 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-blue-600 to-sky-400"
+                        style={{ width: `${Math.min(100, Math.max(0, unitDef?.defenseInfantry || 0))}%` }}
+                      />
+                    </div>
                   </div>
                   <div className="p-2 bg-stone-900 rounded border border-stone-800 text-center">
-                    <span className="text-stone-500 block text-[10px]">Piyade Savunması</span>
-                    <strong className="text-blue-400 text-sm">{unitDef?.defenseInfantry}</strong>
+                    <span className="text-stone-400 block text-[10px]">Süvari Savunması</span>
+                    <strong className="text-cyan-400 text-sm">{unitDef?.defenseCavalry} / 100</strong>
+                    <div className="mt-1 h-1.5 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
+                      <div 
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-teal-400"
+                        style={{ width: `${Math.min(100, Math.max(0, unitDef?.defenseCavalry || 0))}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="p-2 bg-stone-900 rounded border border-stone-800 text-center">
-                    <span className="text-stone-500 block text-[10px]">Süvari Savunması</span>
-                    <strong className="text-cyan-400 text-sm">{unitDef?.defenseCavalry}</strong>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 font-mono mt-2">
+                  <div className="p-2 bg-stone-900 rounded-lg border border-amber-900/40 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="text-amber-400 block text-[10px] font-bold">⚡ Sefer Hızı</span>
+                      <strong className="text-amber-300 text-sm">{unitDef?.speedScore ?? 50} / 100</strong>
+                    </div>
+                    <div className="mt-1">
+                      <div className="relative h-1.5 w-full bg-stone-950 rounded-full overflow-hidden border border-amber-950 p-[1px]">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-300 transition-all duration-500"
+                          style={{ width: `${Math.min(100, Math.max(0, unitDef?.speedScore ?? 50))}%` }}
+                        />
+                      </div>
+                      <span className="text-[9px] text-stone-400 block mt-1">({unitDef?.speedTilesPerMin} kare/dk)</span>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-stone-900 rounded-lg border border-amber-900/40 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="text-yellow-400 block text-[10px] font-bold">💰 Ganimet Kapasitesi</span>
+                      <strong className="text-emerald-400 text-sm">{unitDef?.plunderScore ?? 50} / 100</strong>
+                    </div>
+                    <div className="mt-1">
+                      <div className="relative h-1.5 w-full bg-stone-950 rounded-full overflow-hidden border border-amber-950 p-[1px]">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-yellow-600 via-amber-400 to-emerald-400 transition-all duration-500"
+                          style={{ width: `${Math.min(100, Math.max(0, unitDef?.plunderScore ?? 50))}%` }}
+                        />
+                      </div>
+                      <span className="text-[9px] text-stone-400 block mt-1">({unitDef?.lootCapacity} yük/birim)</span>
+                    </div>
                   </div>
                 </div>
               </div>

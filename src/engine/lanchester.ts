@@ -240,35 +240,33 @@ export function simulateBattle(input: BattleInput): BattleReport {
       attackerInfCount += count;
     }
 
-    let unitAtkInf = (def.attackInfantry ?? def.attackPower) * count;
-    let unitAtkCav = (def.attackCavalry ?? def.attackPower) * count;
+    let unitAtk = def.attackPower * count;
 
     // Demirci Talimi (+%1 saldırı gücü / seviye, maks %20)
     const forgeAtkLevel = Math.min(20, Math.max(0, attackerUpgrades?.[uType]?.attackLevel || 0));
     if (forgeAtkLevel > 0) {
-      unitAtkInf *= (1.0 + forgeAtkLevel / 100);
-      unitAtkCav *= (1.0 + forgeAtkLevel / 100);
+      unitAtk *= (1.0 + forgeAtkLevel / 100);
     }
 
     // Beylik Hücum Bonusları (Karaman +%20 Doğrudan Taarruz)
     if (isKaraman) {
-      unitAtkInf *= 1.20;
-      unitAtkCav *= 1.20;
+      unitAtk *= 1.20;
     }
 
     const attFactionDef = FACTIONS[attackerFaction];
     if (attFactionDef && !isKaraman) {
       if (def.category === 'suvari' && attFactionDef.cavalryAttackBonus > 0) {
-        unitAtkInf *= (1.0 + attFactionDef.cavalryAttackBonus);
-        unitAtkCav *= (1.0 + attFactionDef.cavalryAttackBonus);
+        unitAtk *= (1.0 + attFactionDef.cavalryAttackBonus);
       } else if (def.category === 'piyade' && attFactionDef.infantryAttackBonus > 0) {
-        unitAtkInf *= (1.0 + attFactionDef.infantryAttackBonus);
-        unitAtkCav *= (1.0 + attFactionDef.infantryAttackBonus);
+        unitAtk *= (1.0 + attFactionDef.infantryAttackBonus);
       }
     }
 
-    attackerInfAtkTotal += unitAtkInf;
-    attackerCavAtkTotal += unitAtkCav;
+    if (def.category === 'suvari') {
+      attackerCavAtkTotal += unitAtk;
+    } else {
+      attackerInfAtkTotal += unitAtk;
+    }
   }
 
   // ==========================================
@@ -331,17 +329,8 @@ export function simulateBattle(input: BattleInput): BattleReport {
   dInfTotal += 25;
   dCavTotal += 25;
 
-  // Savunan garnizonun bileşimi: Saldıran ordunun Piyade Saldırısı piyadeleri, Süvari Saldırısı süvarileri vurur
-  const defTroopTotal = defenderInfCount + defenderCavCount;
-  let pAtkTotal = 0;
-  if (defTroopTotal > 0) {
-    const defInfRatio = defenderInfCount / defTroopTotal;
-    const defCavRatio = defenderCavCount / defTroopTotal;
-    pAtkTotal = (attackerInfAtkTotal * defInfRatio) + (attackerCavAtkTotal * defCavRatio);
-  } else {
-    // Düşman garnizonu boşsa ortalama taarruz gücü
-    pAtkTotal = (attackerInfAtkTotal + attackerCavAtkTotal) / 2;
-  }
+  // Saldıran ordunun toplam taarruz gücü (piyade ve süvari taarruz havuzu)
+  let pAtkTotal = attackerInfAtkTotal + attackerCavAtkTotal;
 
   // Demirci Çelik Pusatlar Taarruz Bonusu (+%4 / seviye)
   const forgeAtkMult = getForgeAttackMultiplier(attackerForgeUpgrades);

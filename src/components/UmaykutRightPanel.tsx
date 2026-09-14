@@ -147,7 +147,7 @@ export const UmaykutRightPanel: React.FC<UmaykutRightPanelProps> = ({
         {onOpenVictoryPanel && (
           <button
             onClick={onOpenVictoryPanel}
-            title="Cihan Hâkimiyeti Zafer Divanı (Umaykut Binası İttifak Zaferi)"
+            title="Cihan Hâkimiyeti Zafer Divanı (Zafer Mabedi İttifak Zaferi)"
             className="bg-gradient-to-r from-[#633a0e] to-[#3d2005] text-[#fff2d1] border-l-2 border-y-2 border-[#ffd700] rounded-l-md px-1.5 py-3.5 text-[10px] font-serif font-black shadow-[inset_1px_1px_2px_rgba(255,255,255,0.3),-4px_4px_8px_rgba(0,0,0,0.9)] transition hover:brightness-135 cursor-pointer flex flex-col items-center group"
             style={{ writingMode: 'vertical-rl' }}
           >

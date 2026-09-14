@@ -76,39 +76,14 @@ class CollisionDataMapEngine {
 
   /**
    * Bir noktanın doğrudan su (deniz, göl veya sınır dışı) olup olmadığını analitik olarak döner
+   * (Deniz ve göl kısıtlamaları kaldırılmıştır - Tüm harita düz ve açıktır)
    */
   public isWater(x: number, y: number): boolean {
-    const cx = Math.max(0, Math.min(DATA_MAP_WIDTH - 1, Math.floor(x)));
-    const cy = Math.max(0, Math.min(DATA_MAP_HEIGHT - 1, Math.floor(y)));
-
-    // 1. Ekstrem sınır dışı kontrolü
-    if (cx <= 5 || cx >= DATA_MAP_WIDTH - 5 || cy <= 5 || cy >= DATA_MAP_HEIGHT - 5) {
-      return true;
+    const cx = Math.floor(x);
+    const cy = Math.floor(y);
+    if (cx < 0 || cx >= DATA_MAP_WIDTH || cy < 0 || cy >= DATA_MAP_HEIGHT) {
+      return false; // Harita dışı durumları da serbest
     }
-
-    // 2. Ana kara poligonu dışında ise kesinlikle denizdir
-    if (!this.pointInPolygon(cx, cy, this.coastlinePoly)) {
-      return true;
-    }
-
-    // 3. İç göllerden birinin içinde ise sudur
-    for (const lake of this.lakePolys) {
-      if (this.pointInPolygon(cx, cy, lake.points)) {
-        return true;
-      }
-    }
-
-    // 4. Eğer Canvas ImageData mevcutsa piksel bazlı onay da al
-    if (this.imageData) {
-      const index = (cy * DATA_MAP_WIDTH + cx) * 4;
-      const r = this.imageData.data[index];
-      const g = this.imageData.data[index + 1];
-      const b = this.imageData.data[index + 2];
-      if (r < 35 && g < 35 && b < 35) {
-        return true;
-      }
-    }
-
     return false;
   }
 
@@ -116,32 +91,16 @@ class CollisionDataMapEngine {
    * Bir noktanın geçerli iskan karası olup olmadığını döner
    */
   public isValidLand(x: number, y: number): boolean {
-    return !this.isWater(x, y);
+    return true;
   }
 
   /**
-   * Verilen koordinat deniz/su üzerindeyse en yakın geçerli karasal koordinatı bulur
+   * Verilen koordinat için geçerli harita koordinatını döner
    */
   public findNearestValidLand(x: number, y: number): { x: number; y: number } {
-    if (this.isValidLand(x, y)) {
-      return { x: Math.floor(x), y: Math.floor(y) };
-    }
-
-    // Spiral tarama ile en yakın karayı bul
-    for (let r = 1; r < 80; r++) {
-      for (let angle = 0; angle < Math.PI * 2; angle += 0.3) {
-        const testX = Math.round(x + Math.cos(angle) * r);
-        const testY = Math.round(y + Math.sin(angle) * r);
-        if (testX >= 0 && testX < DATA_MAP_WIDTH && testY >= 0 && testY < DATA_MAP_HEIGHT) {
-          if (this.isValidLand(testX, testY)) {
-            return { x: testX, y: testY };
-          }
-        }
-      }
-    }
-
-    // Yedek güvenli Anadolu merkezi (Konya/Ankara yaylası)
-    return { x: 360, y: 336 };
+    const cx = Math.max(0, Math.min(DATA_MAP_WIDTH - 1, Math.round(x)));
+    const cy = Math.max(0, Math.min(DATA_MAP_HEIGHT - 1, Math.round(y)));
+    return { x: cx, y: cy };
   }
 
   /**
@@ -301,16 +260,12 @@ class CollisionDataMapEngine {
     const b = this.imageData.data[index + 2];
     const a = this.imageData.data[index + 3];
 
-    // Hem piksel siyahlığı hem de analitik coğrafi poligon kontrolü
-    const isWaterPixel = r < 35 && g < 35 && b < 35;
-    const isWater = waterGeo || isWaterPixel;
-    const isValidLand = !isWater;
+    const isWater = false;
+    const isValidLand = true;
 
     let factionZone: FactionId | 'neutral' | 'water' = 'neutral';
 
-    if (isWater) {
-      factionZone = 'water';
-    } else if (r > 180 && g < 70 && b < 70) {
+    if (r > 180 && g < 70 && b < 70) {
       factionZone = 'osmanogullari'; // Kırmızı
     } else if (r < 60 && g < 90 && b > 110) {
       factionZone = 'karamanogullari'; // Lacivert

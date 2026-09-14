@@ -97,6 +97,7 @@ export const QuickMarchModal: React.FC<QuickMarchModalProps> = ({
   let totalAttackPower = 0;
   let totalLootCapacity = 0;
   let slowestSpeed = 999;
+  let slowestSpeedScore = 100;
 
   for (const [uKey, countVal] of Object.entries(selectedUnits)) {
     const count = Number(countVal) || 0;
@@ -114,10 +115,14 @@ export const QuickMarchModal: React.FC<QuickMarchModalProps> = ({
 
     if (uDef.speedTilesPerMin < slowestSpeed) {
       slowestSpeed = uDef.speedTilesPerMin;
+      slowestSpeedScore = uDef.speedScore ?? 50;
     }
   }
 
-  if (slowestSpeed === 999) slowestSpeed = 2.0;
+  if (slowestSpeed === 999) {
+    slowestSpeed = 2.0;
+    slowestSpeedScore = 50;
+  }
 
   const factionMarchMult = (originVillage.faction && FACTIONS[originVillage.faction]?.marchSpeedMultiplier) || 1.0;
   slowestSpeed *= factionMarchMult;
@@ -514,8 +519,8 @@ export const QuickMarchModal: React.FC<QuickMarchModalProps> = ({
                           <div className="text-[10px] text-[#a89274] flex items-center gap-2 mt-0.5">
                             <span>Mevcut: <strong className="text-amber-300 font-mono">{available}</strong></span>
                             <span>•</span>
-                            <span title="Saldırı Gücü">⚔️ {uDef.attackPower}</span>
-                            <span title="Hız (Tile/Dk)">🐎 {uDef.speedTilesPerMin}</span>
+                            <span title="Hız Puanı (0-100)">⚡ {uDef.speedScore ?? 50}/100</span>
+                            <span title="Yağma Puanı (0-100)">💰 {uDef.plunderScore ?? 50}/100</span>
                           </div>
                         </div>
                       </div>
@@ -599,6 +604,12 @@ export const QuickMarchModal: React.FC<QuickMarchModalProps> = ({
               <Package className="w-3.5 h-3.5 text-emerald-400" />
               <span className="text-[#a89274]">Ganimet:</span>
               <strong className="text-emerald-200 font-mono">{totalLootCapacity}</strong>
+            </div>
+
+            <div className="px-2.5 py-1 rounded-lg bg-[#140c07] border border-[#523d24] flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-[#a89274]">Hız:</span>
+              <strong className="text-amber-300 font-mono">{totalTroops > 0 ? slowestSpeedScore : '-'}/100</strong>
             </div>
 
             <div className="px-2.5 py-1 rounded-lg bg-[#140c07] border border-[#523d24] flex items-center gap-1.5">

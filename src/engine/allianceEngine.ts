@@ -100,7 +100,7 @@ export const INITIAL_DEFAULT_ALLIANCE: Alliance = {
   tag: 'FTH',
   leaderId: 'player_main',
   leaderName: 'Barutozap',
-  description: 'Anadolu Beyliklerini tek sancak altında birleştirip 10. Seviye Umaykut Mabetleriyle Cihan Hâkimiyetini kurmayı hedefleyen kutlu ittifak.',
+  description: 'Anadolu Beyliklerini tek sancak altında birleştirip 10. Seviye Zafer Mabetleriyle Cihan Hâkimiyetini kurmayı hedefleyen kutlu ittifak.',
   createdAt: Date.now() - 86400000 * 7,
   members: [
     {

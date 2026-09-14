@@ -18,7 +18,8 @@ import {
   getBuildingImage,
   getCapturedNodesForVillage, 
   getWallDefenseBonus, 
-  getHideoutCapacity 
+  getHideoutCapacity,
+  isUnitProducibleByFaction
 } from '../data/gameData';
 import { AutoBuildingSprite } from './AutoBuildingSprite';
 import { UmaykutRightPanel } from './UmaykutRightPanel';
@@ -84,10 +85,10 @@ export const UMAYKUT_BUILDING_PLOTS: BuildingPlotConfig[] = [
   { id: 'plot-forge',      baseType: 'forge',       name: 'Demirci (Silahhane)',    xPercent: 61.0, yPercent: 78.5 },
   { id: 'plot-barracks',   baseType: 'barracks',    name: 'Alp Talimgahı (Kışla)',  xPercent: 40.5, yPercent: 78.5 },
 
-  // 4. BATI PARSELLERİ (Gözetleme, Medrese/Okul & Umaykut Mabedi)
+  // 4. BATI PARSELLERİ (Gözetleme, Medrese/Okul & Zafer Mabedi)
   { id: 'plot-watchtower', baseType: 'watchtower',  name: 'Gözetleme Kulesi',       xPercent: 21.0, yPercent: 59.5 },
   { id: 'plot-slot-west',  baseType: 'school',      name: 'Medrese (Okul)',         xPercent: 21.2, yPercent: 40.5 },
-  { id: 'plot-slot-northw',baseType: 'umaykut',     name: 'Umaykut Mabedi',         xPercent: 32.0, yPercent: 26.0 },
+  { id: 'plot-slot-northw',baseType: 'umaykut',     name: 'Zafer Mabedi',           xPercent: 32.0, yPercent: 26.0 },
 ];
 
 // Geriye dönük uyumluluk için aliaslar
@@ -332,7 +333,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
       case 'warehouse':
         return { subTitle: 'Hammadde Deposu', desc: 'Maden, taş ve kerestenin saklandığı büyük ambar.' };
       case 'umaykut':
-        return { subTitle: 'Sezon Zaferi', desc: 'Umaykut Online resmi sezon zafer mabedi. 3 farklı beylikten 10. seviyeye tamamlandığında cihan hâkimiyeti kazanılır.' };
+        return { subTitle: 'Sezon Zaferi', desc: 'Cihan hâkimiyeti ve resmi sezon zafer mabedi. 3 farklı beylikten 10. seviyeye tamamlandığında zafer kazanılır.' };
       default:
         return { subTitle: `Seviye ${level}`, desc: BUILDINGS[bType]?.description || '' };
     }
@@ -503,8 +504,8 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
     return 0;
   });
 
-  // 7 Temel / Kışla ve Otağ Birliği (Gulam ve Levent dahil)
-  const standardUnitsList: { type: UnitType; building: BuildingType }[] = [
+  // Temel Kışla ve Otağ Birlikleri (Beyliğin üretebildikleri veya köyde mevcut olanlar)
+  const rawStandardUnits: { type: UnitType; building: BuildingType }[] = [
     { type: 'mizrakli', building: 'barracks' },
     { type: 'kilicli', building: 'barracks' },
     { type: 'gulam', building: 'barracks' },
@@ -513,6 +514,11 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
     { type: 'casus', building: 'watchtower' },
     { type: 'kocbasi', building: 'barracks' },
   ];
+  const standardUnitsList = rawStandardUnits.filter(item => {
+    const ownCount = Number(village.units[item.type]) || 0;
+    const stationedCount = (village.stationedSupport || []).reduce((sum, s) => sum + (Number(s.units[item.type]) || 0), 0);
+    return isUnitProducibleByFaction(item.type, village.faction) || (ownCount + stationedCount) > 0;
+  });
   const foreignUnitsToShow = sortedForeignSpecials.slice(0, 4);
 
   const armyRibbonUnits: {
@@ -764,7 +770,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
             <div className="flex items-center justify-between border-b border-amber-800/60 pb-2">
               <div className="flex items-center gap-2">
                 <span className="text-xl">📜</span>
-                <h3 className="font-bold text-amber-300 text-base">Umaykut Köy İçi Rehberi</h3>
+                <h3 className="font-bold text-amber-300 text-base">Köy İçi İdare Rehberi</h3>
               </div>
               <button
                 onClick={() => setShowHelpGuide(false)}
@@ -851,7 +857,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
                     Köy Mimari Çizimi
                   </span>
                   <span className="bg-black/70 px-2.5 py-1 rounded-md border border-stone-700 text-stone-400">
-                    Umaykut 3D
+                    Mimari 3D
                   </span>
                 </div>
               </div>
@@ -1014,7 +1020,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
                 },
                 { 
                   type: 'umaykut' as BuildingType, 
-                  name: 'Umaykut Mabedi', 
+                  name: 'Zafer Mabedi', 
                   desc: 'Sezon zafer mabedi. 10 köy ve 10. seviye Merkez Otağı ile yalnızca payitahtta kurulabilir.', 
                   icon: '🏛️',
                   image: '/assets/buildings/umaykut.webp',

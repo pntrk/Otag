@@ -11,7 +11,7 @@
  */
 
 import { FactionId, Resources, UnitType, Village } from '../types/game';
-import { UNITS, FACTIONS } from '../data/gameData';
+import { UNITS, FACTIONS, isUnitProducibleByFaction } from '../data/gameData';
 
 // Temel doğum süreleri (saniye)
 export const BASE_SPAWN_DURATION_SEC = 1200; // 20 Dakika (1200 saniye)
@@ -126,6 +126,24 @@ export function canConvertWorkerToTroop(
   missingResources: Partial<Resources>;
 } {
   const def = UNITS[unitType];
+  if (!def) {
+    return {
+      canConvert: false,
+      reason: 'Geçersiz askeri birim.',
+      missingWorkers: 0,
+      missingResources: {},
+    };
+  }
+
+  if (village.faction && !isUnitProducibleByFaction(unitType, village.faction)) {
+    return {
+      canConvert: false,
+      reason: `${def.name} birliği ${FACTIONS[village.faction]?.name || village.faction} beyliği tarafından eğitilemez.`,
+      missingWorkers: 0,
+      missingResources: {},
+    };
+  }
+
   const currentIdle = village.idlePopulation || 0;
   const missingWorkers = Math.max(0, count - currentIdle);
 

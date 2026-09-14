@@ -77,6 +77,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
 
   // Seçilen en yavaş birliğin hızı (tiles per min)
   let slowestSpeed = 999;
+  let slowestSpeedScore = 100;
   let totalSelectedTroops = 0;
   let totalAttackPower = 0;
   let totalLootCapacity = 0;
@@ -90,7 +91,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
 
     // Demirci Talimi Bonusu (+%1 / seviye)
     const forgeAtkLevel = Math.min(20, Math.max(0, village.unitUpgrades?.[uKey as UnitType]?.attackLevel || 0));
-    const effectiveAtk = (((uDef.attackInfantry ?? uDef.attackPower) + (uDef.attackCavalry ?? uDef.attackPower)) / 2) * (1.0 + forgeAtkLevel / 100);
+    const effectiveAtk = uDef.attackPower * (1.0 + forgeAtkLevel / 100);
     totalAttackPower += effectiveAtk * count;
     
     let unitCap = uDef.lootCapacity;
@@ -101,10 +102,14 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
 
     if (uDef.speedTilesPerMin < slowestSpeed) {
       slowestSpeed = uDef.speedTilesPerMin;
+      slowestSpeedScore = uDef.speedScore ?? 50;
     }
   }
 
-  if (slowestSpeed === 999) slowestSpeed = 2.0;
+  if (slowestSpeed === 999) {
+    slowestSpeed = 2.0;
+    slowestSpeedScore = 50;
+  }
   
   if (sendKhan && khan) {
     slowestSpeed *= (1.0 + (khan.skills.cavalrySpeed * 2.0) / 100);
@@ -373,7 +378,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
                 Harp Divanı: {faction?.name ? `${faction.name} Seferi` : 'Sefer Fermanı & Ordu Teşkilatı'}
               </h3>
               <p className="text-xs text-[#bda688] font-serif">
-                Umaykut harp nizamına uygun sefer amacını seçin, ordunuzu düzenleyip yola çıkarın.
+                Kadim Türkmen harp nizamına uygun sefer amacını seçin, ordunuzu düzenleyip yola çıkarın.
               </p>
             </div>
           </div>
@@ -389,7 +394,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
 
         <form onSubmit={handleDispatch} className="space-y-4">
           
-          {/* Sefer Türü 4 Butonlu Seçici (Umaykut Standartları) */}
+          {/* Sefer Türü 4 Butonlu Seçici (Harp Standartları) */}
           <div>
             <label className="text-xs font-bold text-amber-200 block mb-2 font-serif flex items-center gap-1.5">
               <Scroll className="w-4 h-4 text-amber-400" />
@@ -417,7 +422,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
                     {mission === 'attack' && <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />}
                   </div>
                   <p className="text-[10px] text-[#bda688] leading-tight">
-                    Tam imha savaşı. Mancınık ve Top ile Sur & Umaykut binaları yıkılır (Maks 2 bina).
+                    Tam imha savaşı. Mancınık ve Top ile Sur & Zafer binaları yıkılır (Maks 2 bina).
                   </p>
                 </div>
                 <div className="mt-2 text-[9px] font-mono text-red-300">
@@ -626,14 +631,12 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
                         </div>
                         <div className="text-[10px] text-[#a89070] font-mono space-y-0.5 mt-0.5">
                           <div className="flex items-center justify-between">
-                            <span>Sal: <strong className="text-red-400 font-bold">{uDef.attackInfantry ?? uDef.attackPower}P/{uDef.attackCavalry ?? uDef.attackPower}S</strong></span>
+                            <span>Sal: <strong className="text-red-400 font-bold">{uDef.attackPower}</strong></span>
                             <span>Sav: <strong className="text-blue-400 font-bold">{uDef.defenseInfantry}P/{uDef.defenseCavalry}S</strong></span>
                           </div>
                           <div className="flex items-center justify-between text-[9px]">
-                            <span className={uDef.isSpecialUnit ? 'text-amber-400 font-bold' : 'text-stone-400'}>
-                              {uDef.isSpecialUnit ? '⭐ 300 P' : '200 P'}
-                            </span>
-                            <span>Yük: <strong className="text-emerald-400 font-bold">{uDef.lootCapacity}</strong></span>
+                            <span className="text-amber-300 font-bold">⚡ {uDef.speedScore ?? 50}/100</span>
+                            <span className="text-yellow-400 font-bold">💰 {uDef.plunderScore ?? 50}/100</span>
                           </div>
                         </div>
                         {(upgradeAtk > 0 || upgradeDef > 0) && (
@@ -677,7 +680,7 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
 
           {/* 5. Harp Meclisi Sefer Özeti & Ferman Onayı */}
           <div className="bg-gradient-to-r from-[#180e07] via-[#100804] to-[#180e07] p-3 sm:p-4 rounded-xl border-2 border-[#8a6538] flex flex-col lg:flex-row items-center justify-between gap-4 text-xs shadow-2xl">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 w-full lg:w-auto font-mono text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5 w-full lg:w-auto font-mono text-xs">
               <div className="bg-[#0c0703] p-2 sm:p-2.5 rounded-lg border border-[#523d26] text-center shadow-inner min-w-0">
                 <span className="text-[10px] text-[#a89070] font-serif block truncate">Mesafe</span>
                 <strong className="text-[#fef08a] font-black text-xs sm:text-sm block truncate">{distance.toFixed(1)} kare</strong>
@@ -685,6 +688,10 @@ export const MilitaryPanel: React.FC<MilitaryPanelProps> = ({
               <div className="bg-[#0c0703] p-2 sm:p-2.5 rounded-lg border border-[#523d26] text-center shadow-inner min-w-0">
                 <span className="text-[10px] text-[#a89070] font-serif block truncate">İntikal Süresi</span>
                 <strong className="text-amber-300 font-black text-xs sm:text-sm block truncate">{durationSec} saniye</strong>
+              </div>
+              <div className="bg-[#0c0703] p-2 sm:p-2.5 rounded-lg border border-[#523d26] text-center shadow-inner min-w-0">
+                <span className="text-[10px] text-[#a89070] font-serif block truncate">Ordu Hızı</span>
+                <strong className="text-amber-400 font-black text-xs sm:text-sm block truncate">{totalSelectedTroops > 0 ? slowestSpeedScore : '-'}/100</strong>
               </div>
               <div className="bg-[#0c0703] p-2 sm:p-2.5 rounded-lg border border-[#523d26] text-center shadow-inner min-w-0">
                 <span className="text-[10px] text-[#a89070] font-serif block truncate">Toplam Taarruz</span>

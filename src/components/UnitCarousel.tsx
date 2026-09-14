@@ -1,6 +1,6 @@
 import React from 'react';
 import { BuildingType, UnitType, Village } from '../types/game';
-import { FACTIONS, UNITS } from '../data/gameData';
+import { FACTIONS, UNITS, isUnitProducibleByFaction } from '../data/gameData';
 import { UnitPortrait } from './UnitPortrait';
 import { ParchmentTooltip } from './ParchmentTooltip';
 
@@ -18,8 +18,8 @@ export const UnitCarousel: React.FC<UnitCarouselProps> = ({
   const faction = FACTIONS[village.faction] || FACTIONS.osmanogullari;
   const playerSpecialUnit = (faction.specialUnitId as UnitType) || 'akinci';
 
-  // Standart Kışla, Ahır, Gözetleme Kulesi birlikleri (Gulam ve Levent dahil)
-  const standardUnitsList: { type: UnitType; building: BuildingType }[] = [
+  // Tüm temel birlik adayları
+  const rawStandardUnits: { type: UnitType; building: BuildingType }[] = [
     { type: playerSpecialUnit, building: (UNITS[playerSpecialUnit]?.buildingRequired as BuildingType) || 'barracks' },
     { type: 'mizrakli', building: 'barracks' },
     { type: 'kilicli', building: 'barracks' },
@@ -29,6 +29,13 @@ export const UnitCarousel: React.FC<UnitCarouselProps> = ({
     { type: 'casus', building: 'watchtower' },
     { type: 'kocbasi', building: 'barracks' },
   ];
+
+  // Sadece bu beylik tarafından üretilebilen veya köyde mevcut olan birlikler
+  const standardUnitsList = rawStandardUnits.filter(item => {
+    const ownCount = Number(village.units[item.type]) || 0;
+    const stationedCount = (village.stationedSupport || []).reduce((sum, s) => sum + (Number(s.units[item.type]) || 0), 0);
+    return isUnitProducibleByFaction(item.type, village.faction) || (ownCount + stationedCount) > 0;
+  });
 
   // Diğer beyliklerin özel birlikleri
   const ALL_SPECIAL_UNITS: UnitType[] = [

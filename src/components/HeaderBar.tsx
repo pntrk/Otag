@@ -222,7 +222,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               <button 
                 onClick={onOpenVictoryModal}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-b from-[#4a2e0a] via-[#331c05] to-[#1a0e02] border border-[#ffd700]/70 rounded-md shadow-md hover:brightness-125 transition cursor-pointer group ml-1"
-                title="Cihan Hâkimiyeti: Umaykut Binası İttifak Zaferi & Birlik Kapasitesi"
+                title="Cihan Hâkimiyeti: Zafer Mabedi İttifak Zaferi & Birlik Kapasitesi"
               >
                 <Trophy className="w-4 h-4 text-[#ffd700] group-hover:scale-110 transition-transform drop-shadow" />
                 <span className="text-xs font-bold font-serif text-[#fde68a] hidden sm:block">Zafer Divanı</span>

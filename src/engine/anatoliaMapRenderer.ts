@@ -182,94 +182,24 @@ export class AnatoliaMapRenderer {
       }
     } else {
       // ========================================================================
-      // B. VEKTÖREL ANADOLU & DENİZ ÇİZİMİ (Physical / Political / Parchment)
+      // B. GENİŞ DÜZ VE AÇIK OVA ZEMİN ÇİZİMİ
       // ========================================================================
-      const seaGradient = ctx.createLinearGradient(mapStartX, mapStartY, mapStartX, mapStartY + mapH);
-      if (mode === 'parchment') {
-        seaGradient.addColorStop(0, '#c8b693');
-        seaGradient.addColorStop(0.5, '#bdab86');
-        seaGradient.addColorStop(1, '#b29f79');
+      const landGrad = ctx.createLinearGradient(mapStartX, mapStartY, mapStartX + mapW, mapStartY + mapH);
+      if (mode === 'political') {
+        landGrad.addColorStop(0, '#e8dcbe');
+        landGrad.addColorStop(0.5, '#dfcfaf');
+        landGrad.addColorStop(1, '#d5c29f');
+      } else if (mode === 'parchment') {
+        landGrad.addColorStop(0, '#f0e6cf');
+        landGrad.addColorStop(0.5, '#e5d7b7');
+        landGrad.addColorStop(1, '#dbcca7');
       } else {
-        seaGradient.addColorStop(0, '#152e4d');   // Karadeniz
-        seaGradient.addColorStop(0.2, '#18385c'); // Marmara & Boğazlar
-        seaGradient.addColorStop(0.6, '#173c60'); // Ege Denizi
-        seaGradient.addColorStop(1, '#112b45');   // Akdeniz derinlikleri
+        landGrad.addColorStop(0, '#688c38');
+        landGrad.addColorStop(0.5, '#5e8031');
+        landGrad.addColorStop(1, '#53732b');
       }
-      ctx.fillStyle = seaGradient;
+      ctx.fillStyle = landGrad;
       ctx.fillRect(mapStartX, mapStartY, mapW, mapH);
-
-      // Gerçek Anadolu & Trakya Ana Kara Poligonu
-      const coastPts = this.cachedCoastline.map(p => toS(p.x, p.y));
-
-      if (coastPts.length > 2) {
-        // Kıyı Sığ Suları & Resif Işıltısı
-        ctx.beginPath();
-        ctx.moveTo(coastPts[0].sx, coastPts[0].sy);
-        for (let i = 1; i < coastPts.length; i++) {
-          ctx.lineTo(coastPts[i].sx, coastPts[i].sy);
-        }
-        ctx.closePath();
-
-        ctx.strokeStyle = mode === 'parchment' ? 'rgba(160, 130, 80, 0.4)' : 'rgba(64, 165, 200, 0.35)';
-        ctx.lineWidth = Math.max(4, 12 * zoom);
-        ctx.lineJoin = 'round';
-        ctx.stroke();
-
-        // Kara Dolgusu
-        const landGrad = ctx.createLinearGradient(mapStartX, mapStartY, mapStartX + mapW, mapStartY + mapH);
-        if (mode === 'political') {
-          landGrad.addColorStop(0, '#e8dcbe');
-          landGrad.addColorStop(0.5, '#dfcfaf');
-          landGrad.addColorStop(1, '#d5c29f');
-        } else if (mode === 'parchment') {
-          landGrad.addColorStop(0, '#f0e6cf');
-          landGrad.addColorStop(0.5, '#e5d7b7');
-          landGrad.addColorStop(1, '#dbcca7');
-        } else {
-          landGrad.addColorStop(0, '#c7be93');   // Karadeniz orman ve kıyı platosu
-          landGrad.addColorStop(0.25, '#d4c297'); // İç Batı Anadolu
-          landGrad.addColorStop(0.5, '#cca872'); // Konya & Tuz Gölü Bozkırı
-          landGrad.addColorStop(0.75, '#b99564'); // Toroslar ve Çukurova
-          landGrad.addColorStop(1, '#aa8452');   // Doğu Anadolu Yüksek Yaylaları
-        }
-        ctx.fillStyle = landGrad;
-        ctx.fill();
-
-        ctx.strokeStyle = mode === 'parchment' ? '#5a3d1e' : '#3d2b17';
-        ctx.lineWidth = Math.max(1.2, 2.4 * zoom);
-        ctx.stroke();
-      }
-
-      // Göller
-      if (showLakes) {
-        // Van Gölü
-        const vanPts = this.cachedLakes.vanGolu.map(p => toS(p.x, p.y));
-        if (vanPts.length > 2) {
-          ctx.beginPath();
-          ctx.moveTo(vanPts[0].sx, vanPts[0].sy);
-          for (let i = 1; i < vanPts.length; i++) ctx.lineTo(vanPts[i].sx, vanPts[i].sy);
-          ctx.closePath();
-          ctx.fillStyle = mode === 'parchment' ? '#9dbfc2' : '#1b5e82';
-          ctx.fill();
-          ctx.strokeStyle = '#324a5e';
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
-        }
-
-        // Tuz Gölü
-        const tuzPts = this.cachedLakes.tuzGolu.map(p => toS(p.x, p.y));
-        if (tuzPts.length > 2) {
-          ctx.beginPath();
-          ctx.moveTo(tuzPts[0].sx, tuzPts[0].sy);
-          for (let i = 1; i < tuzPts.length; i++) ctx.lineTo(tuzPts[i].sx, tuzPts[i].sy);
-          ctx.closePath();
-          ctx.fillStyle = mode === 'parchment' ? '#e2ebe6' : '#d2e9e6';
-          ctx.fill();
-          ctx.strokeStyle = '#9ebdb5';
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
-        }
-      }
 
       // Nehirler
       if (showRivers) {

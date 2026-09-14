@@ -28,12 +28,14 @@ export interface FactionUnit {
   role: string;
   category: 'piyade' | 'suvari' | 'kusatma';
   description: string;
-  baseAttack: number;
-  attackInfantry: number;     // Piyade Saldırısı
-  attackCavalry: number;      // Süvari Saldırısı
-  baseDefenseInfantry: number; // Piyade Savunması
-  baseDefenseCavalry: number;  // Süvari Savunması
-  totalPoints: number;        // Toplam 4 Unsur Puanı (Özel Birimler için tam 300)
+  baseAttack: number;          // Saldırı Gücü (0 - 100)
+  attackInfantry?: number;     // Geriye uyumluluk için
+  attackCavalry?: number;      // Geriye uyumluluk için
+  baseDefenseInfantry: number; // Piyade Savunması (0 - 100)
+  baseDefenseCavalry: number;  // Süvari Savunması (0 - 100)
+  totalPoints?: number;       // Toplam Puan
+  speedScore: number;         // Hız Puanı (0 - 100)
+  plunderScore: number;       // Ganimet / Yağma Puanı (0 - 100)
 }
 
 export interface FactionBonus {
@@ -97,20 +99,22 @@ export const OSMANOGULLARI_BEYLIK: BeylikDefinition = {
   bannerBorder: 'border-[#b91c1c]',
   crestBg: 'bg-gradient-to-b from-[#8f2415] to-[#450a04] border-[#f87171]',
   badge: '⚖️ Dengeli',
-  description: 'Söğüt ve Domaniç uç bölgesinde gaza ruhuyla parlayan; hem saldırıda hem savunmada orta ayarda dengeli muharebe doktrinine ve süratli sefer intikaline sahip beylik.',
+  description: 'Söğüt ve Domaniç uç bölgesinde gaza ruhuyla parlayan; yıldırım intikal süratine ve akın kabiliyetine odaklanan, sefer hızıyla düşmanı gafil avlayan beylik.',
   unit: {
     id: 'akinci',
     name: 'Akıncı',
     image: '/drawable/akinci.webp',
-    role: 'Dengeli Gaza Süvarisi & Uç Akıncısı',
+    role: 'Yıldırım Sefer & Akın Süvarisi',
     category: 'suvari',
-    description: 'Hem taarruzda hem savunmada eşit ve dengeli orta ayar güce sahip (150 Saldırı / 150 Savunma), yüksek manevra kabiliyetiyle her çatışmaya uyum sağlayan atlı gaziler.',
-    baseAttack: 75,
-    attackCavalry: 75,
-    attackInfantry: 75,
-    baseDefenseCavalry: 75,
-    baseDefenseInfantry: 75,
-    totalPoints: 300,
+    description: 'Efsanevi sefer sürati ve yüksek ganimet heybeleriyle düşman köylerini yıldırım hızıyla vuran uç süvarileri (70 Saldırı, 55 Piyade Sav., 70 Süvari Sav., 95 Hız, 90 Ganimet).',
+    baseAttack: 70,
+    attackInfantry: 70,
+    attackCavalry: 70,
+    baseDefenseInfantry: 55,
+    baseDefenseCavalry: 70,
+    totalPoints: 380,
+    speedScore: 95, // Süvari: Yıldırım intikal (Oyunun en hızlısı)
+    plunderScore: 90, // Uç akını ve yüksek ganimet
   },
   bonus: {
     attackMultiplier: 1.05,
@@ -154,7 +158,7 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
     leader: 'Karamanoğlu Mehmed Bey',
     capital: 'Larende (Karaman)',
     crestIcon: '⚔️',
-    flagImage: '/assets/flags/karaman.webp',
+    flagImage: '/assets/flags/karaman.webp?v=2',
     color: '#1e3a8a',
     accentColor: 'text-blue-400',
     bgGradient: 'from-[#0d1e38] via-[#081224] to-[#040914]',
@@ -168,13 +172,15 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
       image: '/drawable/alp.webp',
       role: 'Saldırı Ağırlıklı Kılıçlı Alp',
       category: 'piyade',
-      description: 'Saldırı ağırlıklı donatılmış, yalman kılıçlarıyla ön saflarda düşman hatlarını ezen çelik zırhlı ağır taarruz alpleri (190 Saldırı / 110 Savunma).',
+      description: 'Saldırı ağırlıklı donatılmış, yalman kılıçlarıyla ön saflarda düşman hatlarını ezen çelik zırhlı ağır taarruz alpleri (95 Saldırı, 60 Piyade Sav., 55 Süvari Sav., 60 Hız, 70 Ganimet). Saf taarruz gücünde rakipsizdir.',
       baseAttack: 95,
-      attackCavalry: 85,
-      attackInfantry: 105,
-      baseDefenseCavalry: 50,
+      attackInfantry: 95,
+      attackCavalry: 95,
       baseDefenseInfantry: 60,
-      totalPoints: 300,
+      baseDefenseCavalry: 55,
+      totalPoints: 340,
+      speedScore: 60, // Piyade: Yalman Kılıçlı Taarruz Alpi
+      plunderScore: 70, // Ordugah & Çadır Yağması
     },
     bonus: {
       attackMultiplier: 1.20,
@@ -214,7 +220,7 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
     leader: 'I. Yakub Bey',
     capital: 'Kütahya',
     crestIcon: '🛡️',
-    flagImage: '/assets/flags/germiyan.webp',
+    flagImage: '/assets/flags/germiyan.webp?v=2',
     color: '#059669',
     accentColor: 'text-emerald-400',
     bgGradient: 'from-[#0a2618] via-[#05170e] to-[#020b07]',
@@ -228,13 +234,15 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
       image: '/drawable/mizrakli.webp',
       role: 'Savunma Ağırlıklı Tura & Sur Muhafızı',
       category: 'piyade',
-      description: 'Savunma ağırlıklı uzun kargıları ve devasa kalkanlarıyla süvari hücumlarını durduran, kale kapılarını canı pahasına savunan aşılmaz müdafaa birliği (90 Saldırı / 210 Savunma).',
-      baseAttack: 45,
-      attackCavalry: 45,
-      attackInfantry: 45,
-      baseDefenseCavalry: 115,
+      description: 'Aşılmaz kalkanları ve kargılarıyla kale kapılarını savunan, süvari taarruzlarını durduran müdafaa neferleri (50 Saldırı, 95 Piyade Sav., 95 Süvari Sav., 45 Hız, 65 Ganimet). Şehir savunmasında rakipsizdir.',
+      baseAttack: 50,
+      attackInfantry: 50,
+      attackCavalry: 50,
       baseDefenseInfantry: 95,
-      totalPoints: 300,
+      baseDefenseCavalry: 95,
+      totalPoints: 350,
+      speedScore: 45, // Piyade: Ağır Kalkanlı Sur Muhafızı
+      plunderScore: 65, // Savunma Eri & Ambar Yükü
     },
     bonus: {
       attackMultiplier: 1.0,
@@ -286,15 +294,17 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
       id: 'bozok_suvarisi',
       name: 'Bozok Süvarisi',
       image: '/drawable/bozok_suvarisi.webp',
-      role: 'Savunma Ağırlıklı Bozok Atlı Muhafızı',
+      role: 'Zırhlı Atlı Savunma & Yayla Muhafızı',
       category: 'suvari',
-      description: 'Savunma ağırlıklı donatılmış, yayla siperlerinde at üstünde menzilli oklama ile düşman taarruzlarını püskürten müdafaa süvarileri (110 Saldırı / 190 Savunma).',
-      baseAttack: 55,
-      attackCavalry: 55,
-      attackInfantry: 55,
-      baseDefenseCavalry: 85,
-      baseDefenseInfantry: 105,
-      totalPoints: 300,
+      description: 'Zırhlı atları ve menzilli ok atışlarıyla açık sahada ve siperlerde düşman taarruzlarını kıran savunma süvarileri (65 Saldırı, 85 Piyade Sav., 80 Süvari Sav., 80 Hız, 40 Ganimet). Atlı savunmada rakipsizdir.',
+      baseAttack: 65,
+      attackInfantry: 65,
+      attackCavalry: 65,
+      baseDefenseInfantry: 85,
+      baseDefenseCavalry: 80,
+      totalPoints: 350,
+      speedScore: 80, // Süvari: Zırhlı Toros Atlısı
+      plunderScore: 40, // Yayla Akın Yükü
     },
     bonus: {
       attackMultiplier: 1.0,
@@ -346,15 +356,17 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
       id: 'kure_baltacisi',
       name: 'Baltacı',
       image: '/drawable/kure_baltacisi.webp',
-      role: 'Saldırı Ağırlıklı Ağır Baltacı & Kuşatma Fedaisi',
+      role: 'Ağır Baltacı, Kuşatma & Mutlak Ganimet',
       category: 'piyade',
-      description: 'Saldırı ağırlıklı çift ağızlı madenci baltalarıyla düşman kalkanlarını parçalayan, zırh delen ağır taarruz neferleri (195 Saldırı / 105 Savunma).',
-      baseAttack: 98,
-      attackCavalry: 85,
-      attackInfantry: 110,
+      description: 'Çift ağızlı ağır madenci baltalarıyla kapıları parçalayan ve ambarları boşaltan zırh delici taarruz birliği (90 Saldırı, 60 Piyade Sav., 50 Süvari Sav., 50 Hız, 100 Ganimet). Ganimet taşımada rakipsizdir.',
+      baseAttack: 90,
+      attackInfantry: 90,
+      attackCavalry: 90,
+      baseDefenseInfantry: 60,
       baseDefenseCavalry: 50,
-      baseDefenseInfantry: 55,
-      totalPoints: 300,
+      totalPoints: 350,
+      speedScore: 50, // Piyade: Madenci Ağır Baltacısı
+      plunderScore: 100, // Oyunun en yüksek ganimet kapasitesi
     },
     bonus: {
       attackMultiplier: 1.20,
@@ -387,11 +399,11 @@ export const BEYLIKLER: Record<FactionKey, BeylikDefinition> = {
 };
 
 export const BEYLIK_LIST: BeylikDefinition[] = [
-  BEYLIKLER.osmanogullari,
   BEYLIKLER.karaman,
+  BEYLIKLER.candar,
+  BEYLIKLER.osmanogullari,
   BEYLIKLER.germiyan,
   BEYLIKLER.dulkadir,
-  BEYLIKLER.candar,
 ];
 
 /**

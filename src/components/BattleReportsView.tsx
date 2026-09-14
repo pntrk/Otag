@@ -407,7 +407,7 @@ export const BattleReportsView: React.FC<BattleReportsViewProps> = ({
                  {selectedReport.damagedBuildings.map((db, idx) => (
                    <div key={idx} className="flex items-center justify-between text-xs bg-[#e5d8be] px-3 py-1.5 rounded border border-[#bfa57b] font-serif">
                      <span className="font-bold text-[#3d2612] capitalize">
-                       {db.buildingType === 'wall' ? 'Sur (Hisar Duvarı)' : db.buildingType === 'umaykut' ? 'Umaykut Kut Binası' : db.buildingType}
+                       {db.buildingType === 'wall' ? 'Sur (Hisar Duvarı)' : db.buildingType === 'umaykut' ? 'Zafer Mabedi (Cihan Mabedi)' : db.buildingType}
                      </span>
                      <span className="font-mono text-red-700 font-bold">
                        Seviye {db.levelBefore} → <strong className="text-red-900 font-black">Seviye {db.levelAfter}</strong> ({db.destroyedLevels} Seviye Yıkıldı)

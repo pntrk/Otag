@@ -20,6 +20,14 @@ import {
   Award
 } from 'lucide-react';
 
+const SIMULATOR_ORDERED_FACTIONS: { id: FactionId; name: string }[] = [
+  { id: 'karamanogullari', name: 'Karamanoğulları Beyliği' },
+  { id: 'candarogullari', name: 'Candaroğulları Beyliği' },
+  { id: 'osmanogullari', name: 'Osmanoğulları Beyliği' },
+  { id: 'germiyanogullari', name: 'Germiyanoğulları Beyliği' },
+  { id: 'dulkadirogullari', name: 'Dulkadiroğulları Beyliği' },
+];
+
 export const CombatSimulatorView: React.FC = () => {
   const [attackerFaction, setAttackerFaction] = useState<FactionId>('osmanogullari');
   const [defenderFaction, setDefenderFaction] = useState<FactionId>('karamanogullari');
@@ -124,7 +132,7 @@ export const CombatSimulatorView: React.FC = () => {
                 onChange={(e) => setAttackerFaction(e.target.value as FactionId)}
                 className="bg-[#0e0503] border border-[#6b2311] rounded-lg px-2.5 py-1 text-xs text-[#fca5a5] font-serif font-bold cursor-pointer outline-none focus:border-[#caa05a] shadow-inner"
               >
-                {Object.values(FACTIONS).map(f => (
+                {SIMULATOR_ORDERED_FACTIONS.map(f => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>
@@ -172,7 +180,7 @@ export const CombatSimulatorView: React.FC = () => {
                 onChange={(e) => setDefenderFaction(e.target.value as FactionId)}
                 className="bg-[#05080c] border border-[#2b4c7e] rounded-lg px-2.5 py-1 text-xs text-[#93c5fd] font-serif font-bold cursor-pointer outline-none focus:border-[#caa05a] shadow-inner"
               >
-                {Object.values(FACTIONS).map(f => (
+                {SIMULATOR_ORDERED_FACTIONS.map(f => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>

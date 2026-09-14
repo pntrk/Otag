@@ -21,7 +21,8 @@ import {
   getHideoutCapacity, 
   getInfluenceRadius, 
   getWallDefenseBonus,
-  getBuildingImage
+  getBuildingImage,
+  isUnitProducibleByFaction
 } from '../data/gameData';
 import { 
   getPopulationSpawnDuration, 
@@ -178,7 +179,7 @@ const BuildingModalContent: React.FC<BuildingModalProps & { buildingType: Buildi
                           : 'text-amber-400 hover:text-amber-300'
                       }`}
                     >
-                      🦅 Umaykut Mabedi
+                      🦅 Zafer Mabedi
                     </button>
                   </div>
                 )}
@@ -399,14 +400,14 @@ function TownHallContent({
   return (
     <div className="space-y-4">
       
-      {/* 🏛️ Umaykut Binası İnşaatı & Cihan Hâkimiyeti Bölümü (Merkez Binası Üzerine) */}
+      {/* 🏛️ Cihan Mabedi İnşaatı & Cihan Hâkimiyeti Bölümü (Merkez Binası Üzerine) */}
       <div className="bg-gradient-to-r from-amber-950/40 via-stone-950 to-amber-950/40 border border-amber-600/60 rounded-lg p-3.5 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">🦅</span>
             <div>
               <h4 className="font-bold text-amber-300 text-xs">
-                Cihan Hâkimiyeti: Umaykut Binası (Seviye 1 - 10)
+                Cihan Hâkimiyeti: Zafer Mabedi (Seviye 1 - 10)
               </h4>
               <p className="text-[11px] text-stone-400">
                 10 köy kurmuş beylerin payitahtında Seviye 10 Merkez Binası üzerine inşa edilir.
@@ -441,7 +442,7 @@ function TownHallContent({
               onClick={onSwitchToUmaykut}
               className="px-3 py-1.5 rounded font-bold text-xs bg-gradient-to-r from-amber-600 to-yellow-600 hover:brightness-110 text-stone-950 transition cursor-pointer shrink-0 shadow flex items-center gap-1.5"
             >
-              <span>🦅 Umaykut Mabedini Gör</span>
+              <span>🦅 Zafer Mabedini Gör</span>
               <span>→</span>
             </button>
           )}
@@ -607,7 +608,7 @@ function PopulationRecruitmentBanner({ village }: { village: Village }) {
               </span>
             </div>
             <div className="text-[10px] text-stone-400">
-              Umaykut kuralı: Askerler sıfırdan üretilmez; her asker için <strong className="text-amber-300">1 Boşta İşçi + Hammadde</strong> gerekir.
+              Beylik kuralı: Askerler sıfırdan üretilmez; her asker için <strong className="text-amber-300">1 Boşta İşçi + Hammadde</strong> gerekir.
             </div>
           </div>
         </div>
@@ -642,12 +643,12 @@ function BarracksContent({ village, onTrain }: { village: Village; onTrain: (u: 
   const faction = FACTIONS[village.faction];
   const bLvl = village.buildings.barracks || 0;
 
-  // Mevcut piyadeler ve kışla birimleri
-  const infantryUnits: UnitType[] = ['mizrakli', 'kilicli', 'gulam', 'levent', 'kocbasi', 'mancinik', 'top'];
-  const specialUnit = faction.specialUnitId ? UNITS[faction.specialUnitId as UnitType] : undefined;
-  if (specialUnit && specialUnit.category === 'piyade' && !infantryUnits.includes(faction.specialUnitId as UnitType)) {
-    infantryUnits.push(faction.specialUnitId as UnitType);
+  // Bu beyliğin kışlasında üretilebilen piyade ve muhasara birlikleri
+  const allBarracksUnits: UnitType[] = ['mizrakli', 'kilicli', 'gulam', 'levent', 'kocbasi', 'mancinik', 'top'];
+  if (faction.specialUnitId && !allBarracksUnits.includes(faction.specialUnitId as UnitType)) {
+    allBarracksUnits.push(faction.specialUnitId as UnitType);
   }
+  const infantryUnits: UnitType[] = allBarracksUnits.filter(uId => isUnitProducibleByFaction(uId, village.faction));
 
   return (
     <div className="space-y-3">
@@ -681,11 +682,11 @@ function StablesContent({ village, onTrain }: { village: Village; onTrain: (u: U
   const faction = FACTIONS[village.faction];
   const bLvl = village.buildings.stables || 0;
 
-  const cavalryUnits: UnitType[] = ['hafif_suvari'];
-  const specialUnit = faction.specialUnitId ? UNITS[faction.specialUnitId as UnitType] : undefined;
-  if (specialUnit && specialUnit.category === 'suvari') {
-    cavalryUnits.push(faction.specialUnitId as UnitType);
+  const allStablesUnits: UnitType[] = ['hafif_suvari'];
+  if (faction.specialUnitId && !allStablesUnits.includes(faction.specialUnitId as UnitType)) {
+    allStablesUnits.push(faction.specialUnitId as UnitType);
   }
+  const cavalryUnits: UnitType[] = allStablesUnits.filter(uId => isUnitProducibleByFaction(uId, village.faction));
 
   return (
     <div className="space-y-3">
@@ -917,7 +918,7 @@ function HideoutContent({ village }: { village: Village }) {
 
       <div className="text-stone-300 text-[11px] bg-stone-950 p-3 rounded border border-stone-800/60 leading-relaxed space-y-1.5 font-serif">
         <p>
-          <strong>Umaykut Yağma ve Sığınak Kuralı:</strong> Düşman çapulcu ve akıncıları saldırdığında tüm ortak hazineyi yağmalayamaz. Ortak kasadaki kaynaklar oyuncunun toplam köy sayısına bölünür (Köy Payı).
+          <strong>Hazine Yağma ve Sığınak Kuralı:</strong> Düşman çapulcu ve akıncıları saldırdığında tüm ortak hazineyi yağmalayamaz. Ortak kasadaki kaynaklar oyuncunun toplam köy sayısına bölünür (Köy Payı).
         </p>
         <p>
           Sığınağınız bu pay içindeki <strong>{protectedAmount.toLocaleString()} Odun, Taş, Demir, Tahıl ve Altını</strong> koruma altına alır:
@@ -968,7 +969,7 @@ function GranaryContent({ village }: { village: Village }) {
 
       <div className="text-stone-300 text-[11px] bg-stone-950 p-3 rounded border border-stone-800/60 leading-relaxed space-y-1.5 font-serif">
         <p>
-          <strong>Umaykut Zahire & Depolama Mekaniği:</strong> Zahire Ambarı seviyesi arttıkça toplam kaynak depolama tavanınız katlanır ve tarladan toplanan buğdayın çürümesi engellenir.
+          <strong>Zahire & Depolama Mekaniği:</strong> Zahire Ambarı seviyesi arttıkça toplam kaynak depolama tavanınız katlanır ve tarladan toplanan buğdayın çürümesi engellenir.
         </p>
         <div className="grid grid-cols-2 gap-2 text-[10.5px] font-mono mt-1">
           <div className="bg-stone-900/80 p-2 rounded border border-stone-800">
@@ -1062,7 +1063,7 @@ const UnitTrainingRow: React.FC<UnitTrainingRowProps> = ({
                   ? 'bg-amber-950/80 text-amber-300 border border-amber-700/80' 
                   : 'bg-stone-900 text-stone-300 border border-stone-800'
               }`}>
-                {unitDef.isSpecialUnit ? '⭐ 300 P (Beylik Özel)' : '200 P'}
+                {unitDef.isSpecialUnit ? '⭐ Beylik Özel' : 'Standart Asker'}
               </span>
               <span className="text-[10px] text-amber-400 font-mono">
                 Garnizonda: {village.units[unitDef.id as UnitType] || 0}
@@ -1070,12 +1071,11 @@ const UnitTrainingRow: React.FC<UnitTrainingRowProps> = ({
             </div>
 
             <div className="flex flex-wrap gap-2 text-[10px] text-stone-400 mt-1 font-mono">
-              <span title="Piyadelere karşı taarruz gücü">Piyade Sal: <strong className="text-red-400">{unitDef.attackInfantry ?? unitDef.attackPower}</strong></span>
-              <span title="Süvarilere karşı taarruz gücü">Süvari Sal: <strong className="text-orange-400">{unitDef.attackCavalry ?? unitDef.attackPower}</strong></span>
+              <span title="Taarruz gücü (0-100)">Saldırı: <strong className="text-red-400">{unitDef.attackPower}</strong></span>
               <span title="Piyade taarruzlarına karşı savunma">Piyade Sav: <strong className="text-blue-400">{unitDef.defenseInfantry}</strong></span>
               <span title="Süvari taarruzlarına karşı savunma">Süvari Sav: <strong className="text-cyan-400">{unitDef.defenseCavalry}</strong></span>
-              <span>Hız: <strong className="text-yellow-400">{unitDef.speedTilesPerMin} t/dk</strong></span>
-              <span>Ganimet: <strong className="text-emerald-400">{unitDef.lootCapacity}</strong></span>
+              <span title="Sefer Hız Puanı (0-100)">⚡ Hız: <strong className="text-amber-300">{unitDef.speedScore ?? 50}/100</strong></span>
+              <span title="Ganimet Kapasite Puanı (0-100)">💰 Ganimet: <strong className="text-yellow-400">{unitDef.plunderScore ?? 50}/100</strong></span>
               <span>İaşe: <strong className="text-amber-400">-{unitDef.grainUpkeepPerHour}/s</strong></span>
             </div>
           </div>
@@ -1507,13 +1507,13 @@ function UmaykutContent({
               Cihan Hâkimiyeti Zafer Mabedi (Seviye 1 - 10)
             </h4>
             <p className="text-[11px] text-stone-400">
-              Umaykut Online Sezon Zafer Koşulu: 3 Farklı Beylikten 10. Seviye Umaykut Binası
+              Sezon Zafer Koşulu: 3 Farklı Beylikten 10. Seviye Zafer Mabedi
             </p>
           </div>
         </div>
 
         <p className="text-xs text-stone-300 leading-relaxed bg-stone-950/70 p-3 rounded-lg border border-stone-800">
-          Umaykut Binası, beyliğinizin cihan hâkimiyetini tescilleyen en ulu mimari şaheserdir. Bu yapı yalnızca tüm beyliğini genişletmiş, payitaht merkez köyündeki otağını en üst seviyeye çıkarmış beylerce inşa edilebilir. Kademe kademe 10. seviyeye ulaştırılması astronomik hammadde ve büyük bir sabır gerektirir.
+          Zafer Mabedi, beyliğinizin cihan hâkimiyetini tescilleyen en ulu mimari şaheserdir. Bu yapı yalnızca tüm beyliğini genişletmiş, payitaht merkez köyündeki otağını en üst seviyeye çıkarmış beylerce inşa edilebilir. Kademe kademe 10. seviyeye ulaştırılması astronomik hammadde ve büyük bir sabır gerektirir.
         </p>
       </div>
 
@@ -1521,7 +1521,7 @@ function UmaykutContent({
       <div className="bg-stone-950 p-4 rounded-xl border border-stone-800 space-y-3">
         <h5 className="font-bold text-xs uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-amber-400" />
-          <span>Umaykut Binası İnşa Ön Şartları (3/3 Zorunlu)</span>
+          <span>Zafer Mabedi İnşa Ön Şartları (3/3 Zorunlu)</span>
         </h5>
 
         <div className="space-y-2">
@@ -1606,7 +1606,7 @@ function UmaykutContent({
                   3. Merkez Köydeki Merkez Binası 10. Seviye Olmalıdır
                 </div>
                 <div className="text-[10px] text-stone-400">
-                  Umaykut Binası, 10. seviyedeki Ulu Otağın temelleri üzerine kademeli inşa edilir.
+                  Zafer Mabedi, 10. seviyedeki Ulu Otağın temelleri üzerine kademeli inşa edilir.
                 </div>
               </div>
             </div>
@@ -1632,14 +1632,14 @@ function UmaykutContent({
             <>
               <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>
-                <strong>Tüm Ön Şartlar Sağlandı:</strong> Umaykut Binasını Merkez Binası üzerine kademe kademe 1'den 10'a inşa edebilirsiniz.
+                <strong>Tüm Ön Şartlar Sağlandı:</strong> Zafer Mabedini Merkez Binası üzerine kademe kademe 1'den 10'a inşa edebilirsiniz.
               </span>
             </>
           ) : (
             <>
               <Lock className="w-4 h-4 text-amber-400 shrink-0" />
               <span>
-                <strong>İnşaat Kilitli:</strong> Umaykut Binasını yükseltebilmek için yukarıda kırmızı ile gösterilen ön şartları tamamlamanız gerekmektedir.
+                <strong>İnşaat Kilitli:</strong> Zafer Mabedini yükseltebilmek için yukarıda kırmızı ile gösterilen ön şartları tamamlamanız gerekmektedir.
               </span>
             </>
           )}
@@ -1667,7 +1667,7 @@ function UmaykutContent({
 
         <div className="bg-stone-900 px-4 py-3 rounded-xl border border-stone-800 text-center shrink-0">
           <div className="text-[10px] text-stone-400">Hedef Zafer</div>
-          <div className="text-xs font-bold text-amber-300 font-mono">10. Seviye Umaykut</div>
+          <div className="text-xs font-bold text-amber-300 font-mono">10. Seviye Mabet</div>
           <div className="text-[9px] text-stone-500 mt-0.5">3 Farklı Beylik</div>
         </div>
       </div>
@@ -1708,7 +1708,7 @@ function SchoolContent({
         </div>
 
         <p className="text-xs text-stone-300 leading-relaxed bg-stone-950/70 p-3 rounded-lg border border-stone-800">
-          Umaykut Online tüzüğü gereğince birliğin azami üye sayısı, üyelerin köylerindeki Okul binalarıyla tayin edilir:
+          Beylik tüzüğü gereğince birliğin azami üye sayısı, üyelerin köylerindeki Okul binalarıyla tayin edilir:
           <br />
           <strong className="text-amber-300">★ Kural: Okul binasının her seviye artışı birliğin oyuncu kapasitesini 3 artırır.</strong>
         </p>
