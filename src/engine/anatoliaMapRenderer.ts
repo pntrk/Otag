@@ -15,7 +15,7 @@ import {
 import { TURKEY_PROVINCES } from '../data/turkeyProvincesGeo';
 import { RealMapTileEngine, MapTileProvider } from './realMapTileEngine';
 
-export type AnatoliaMapMode = 'umaykut_meadow' | 'drawable_parchment' | 'real_relief' | 'real_satellite' | 'real_carto' | 'physical' | 'political' | 'parchment';
+export type AnatoliaMapMode = 'umaykut_meadow' | 'drawable_parchment' | 'real_relief' | 'real_satellite' | 'real_carto' | 'physical' | 'political' | 'parchment' | 'economic' | 'military';
 
 export interface AnatoliaRenderOptions {
   mapMode?: AnatoliaMapMode;
@@ -190,9 +190,17 @@ export class AnatoliaMapRenderer {
         landGrad.addColorStop(0.5, '#dfcfaf');
         landGrad.addColorStop(1, '#d5c29f');
       } else if (mode === 'parchment') {
-        landGrad.addColorStop(0, '#f0e6cf');
-        landGrad.addColorStop(0.5, '#e5d7b7');
-        landGrad.addColorStop(1, '#dbcca7');
+        landGrad.addColorStop(0, '#f2e8d3');
+        landGrad.addColorStop(0.5, '#e4d5b4');
+        landGrad.addColorStop(1, '#d8c49e');
+      } else if (mode === 'economic') {
+        landGrad.addColorStop(0, '#2d4722');
+        landGrad.addColorStop(0.5, '#3b5220');
+        landGrad.addColorStop(1, '#4a3d1e');
+      } else if (mode === 'military') {
+        landGrad.addColorStop(0, '#1c1511');
+        landGrad.addColorStop(0.5, '#261b14');
+        landGrad.addColorStop(1, '#181f18');
       } else {
         landGrad.addColorStop(0, '#688c38');
         landGrad.addColorStop(0.5, '#5e8031');

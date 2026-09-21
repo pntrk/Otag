@@ -24,17 +24,20 @@ export interface ResourceHeaderProps {
   playerVillages?: Village[];
   rates: ResourceRate;
   khan?: KhanHero;
-  activeTab?: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture';
-  onSelectTab?: (tab: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture') => void;
+  activeTab?: any;
+  onSelectTab?: (tab: any) => void;
   onSelectVillage?: (villageId: string) => void;
   onOpenFoundVillageModal?: () => void;
   onOpenFactionModal?: () => void;
   onOpenKhanModal?: () => void;
   onOpenVictoryModal?: () => void;
   onOpenWorkerDrawer?: () => void;
+  onOpenHospitalModal?: () => void;
   onAddTestResources?: () => void;
   activeMarchesCount?: number;
   unreadReportsCount?: number;
+  playerKudret?: number;
+  woundedSoldiersCount?: number;
 }
 
 export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
@@ -50,9 +53,12 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
   onOpenKhanModal,
   onOpenVictoryModal,
   onOpenWorkerDrawer,
+  onOpenHospitalModal,
   onAddTestResources,
   activeMarchesCount = 0,
   unreadReportsCount = 0,
+  playerKudret = 0,
+  woundedSoldiersCount = 0,
 }) => {
   const faction = FACTIONS[village.faction] || FACTIONS.osmanogullari;
   const [isVillageDropdownOpen, setIsVillageDropdownOpen] = useState(false);
@@ -118,7 +124,7 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
               title={`${faction.name} • ${faction.leader} (Beylik Bilgileri)`}
               className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-lg border border-[#8f6834] bg-gradient-to-r from-[#2e1c0e]/95 via-[#3f2714]/90 to-[#22140a]/95 shadow-[0_2px_8px_rgba(0,0,0,0.7)] cursor-pointer hover:border-[#e5b85a] transition group active:scale-95 touch-manipulation"
             >
-              <div className="relative w-6 h-4.5 sm:w-8 sm:h-6 rounded overflow-hidden border border-[#d4af37]/80 bg-black/60 shrink-0">
+              <div className="relative w-5 h-4 sm:w-7 sm:h-5 rounded overflow-hidden border border-[#d4af37]/80 bg-black/60 shrink-0">
                 {faction.flagImage ? (
                   <img 
                     src={faction.flagImage} 
@@ -132,11 +138,11 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
                   </div>
                 )}
               </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-[10px] sm:text-xs font-serif font-bold text-[#fce5a3] tracking-wide group-hover:text-amber-200 transition truncate max-w-[70px] sm:max-w-none">
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="text-[10px] sm:text-xs font-serif font-bold text-[#fce5a3] tracking-wide group-hover:text-amber-200 transition truncate max-w-[65px] sm:max-w-none">
                   {faction.name}
                 </span>
-                <span className="text-[9px] sm:text-[10px] text-amber-200/60 hidden sm:inline">
+                <span className="text-[8.5px] sm:text-[10px] text-amber-200/60 hidden sm:inline truncate">
                   {faction.leader}
                 </span>
               </div>
@@ -144,22 +150,22 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
           </div>
 
           {/* ORTA YUVA: Otağ / Köy Adı & Koordinat Seçici */}
-          <div className="relative flex items-center justify-center min-w-0">
-            <div className="relative flex items-center">
+          <div className="relative flex items-center justify-center flex-1 min-w-0 max-w-xs px-1">
+            <div className="relative flex items-center max-w-full">
               <button
                 id="village-switcher-btn"
                 onClick={() => setIsVillageDropdownOpen(!isVillageDropdownOpen)}
-                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-lg border-2 border-[#b88628] bg-gradient-to-b from-[#3d2613] via-[#2a180b] to-[#1a0e06] shadow-[0_4px_12px_rgba(0,0,0,0.85)] hover:border-[#ffd700] hover:shadow-[0_0_12px_rgba(212,175,55,0.4)] transition cursor-pointer group active:scale-95 touch-manipulation"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-lg border-2 border-[#b88628] bg-gradient-to-b from-[#3d2613] via-[#2a180b] to-[#1a0e06] shadow-[0_4px_12px_rgba(0,0,0,0.85)] hover:border-[#ffd700] hover:shadow-[0_0_12px_rgba(212,175,55,0.4)] transition cursor-pointer group active:scale-95 touch-manipulation max-w-full"
               >
                 <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-[#523315] border border-[#d4af37] flex items-center justify-center text-[9px] sm:text-[10px] shadow-inner text-amber-300 shrink-0">
                   🏛️
                 </div>
                 
                 <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                  <span className="font-serif font-black text-[11px] sm:text-sm text-[#fff4db] tracking-wider uppercase group-hover:text-amber-200 transition truncate max-w-[80px] sm:max-w-[140px] md:max-w-none">
+                  <span className="font-serif font-black text-[10.5px] sm:text-sm text-[#fff4db] tracking-wider uppercase group-hover:text-amber-200 transition truncate max-w-[75px] sm:max-w-[140px] md:max-w-none">
                     {village.name}
                   </span>
-                  <span className="text-[9px] sm:text-[11px] font-mono text-amber-300/80 bg-black/50 px-1 sm:px-1.5 py-0.5 rounded border border-[#6b4720] shrink-0">
+                  <span className="text-[8.5px] sm:text-[11px] font-mono text-amber-300/80 bg-black/50 px-1 sm:px-1.5 py-0.5 rounded border border-[#6b4720] shrink-0">
                     ({village.x}|{village.y})
                   </span>
                 </div>
@@ -230,14 +236,14 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
           </div>
 
           {/* SAĞ YUVA: İşçi & Boşta İşçi + Hakan Butonu */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             
             {/* 100x Hızlandırma Test Modu Rozeti & Anında Kaynak Ekleme */}
             <button
               onClick={onAddTestResources}
               type="button"
               title="⚡ 100x Hızlandırma Aktif! Tıklayarak anında +100.000 Test Kaynağı ekleyebilirsiniz."
-              className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-amber-400/90 bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 shadow-[0_0_12px_rgba(245,158,11,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 group"
+              className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-amber-400/90 bg-gradient-to-r from-amber-950 via-yellow-900 to-amber-950 shadow-[0_0_12px_rgba(245,158,11,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 group"
             >
               <span className="text-amber-300 text-[10px] sm:text-xs group-hover:rotate-12 transition-transform">⚡</span>
               <span className="font-mono font-black text-[9px] sm:text-[11px] text-amber-300 tracking-wider">100x</span>
@@ -248,10 +254,10 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
             <div 
               onClick={onOpenWorkerDrawer}
               title={`Toplam İşçi: ${totalPop} • Boşta İşçi: ${idlePop} (İşçi tahsisi için tıkla)`}
-              className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 rounded-lg border border-[#7a552b] bg-gradient-to-r from-[#26160a] to-[#1a0e06] shadow-md hover:border-amber-400 transition cursor-pointer group active:scale-95 touch-manipulation"
+              className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-[#7a552b] bg-gradient-to-r from-[#26160a] to-[#1a0e06] shadow-md hover:border-amber-400 transition cursor-pointer group active:scale-95 touch-manipulation"
             >
-              <Users className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform shrink-0" />
-              <div className="flex items-center gap-0.5 sm:gap-1 font-mono text-[10px] sm:text-xs">
+              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 group-hover:scale-110 transition-transform shrink-0" />
+              <div className="flex items-center gap-0.5 sm:gap-1 font-mono text-[9.5px] sm:text-xs">
                 <span className="text-amber-100 font-bold">{totalPop}</span>
                 <span className="text-stone-500">/</span>
                 <span className={`font-semibold ${idlePop > 0 ? 'text-emerald-400 animate-pulse' : 'text-stone-400'}`}>
@@ -265,17 +271,49 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
               <button
                 onClick={onOpenKhanModal}
                 title={`Ulu Hakan: ${khan.name} (Seviye ${khan.level})`}
-                className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1 rounded-lg border border-[#a17737] bg-gradient-to-r from-[#42250d] via-[#2f1807] to-[#1c0e04] shadow-md hover:border-[#ffd700] hover:shadow-[0_0_8px_rgba(255,215,0,0.3)] transition cursor-pointer group active:scale-95 touch-manipulation"
+                className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-[#a17737] bg-gradient-to-r from-[#42250d] via-[#2f1807] to-[#1c0e04] shadow-md hover:border-[#ffd700] hover:shadow-[0_0_8px_rgba(255,215,0,0.3)] transition cursor-pointer group active:scale-95 touch-manipulation"
               >
-                <Crown className="w-3.5 h-3.5 text-yellow-400 group-hover:rotate-12 transition-transform shrink-0" />
-                <span className="font-serif font-bold text-[11px] sm:text-xs text-yellow-200 hidden md:inline">
+                <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400 group-hover:rotate-12 transition-transform shrink-0" />
+                <span className="font-serif font-bold text-[10.5px] sm:text-xs text-yellow-200 hidden lg:inline">
                   {khan.name}
                 </span>
-                <span className="font-mono text-[9px] sm:text-[10px] text-amber-300 bg-black/60 px-1 rounded border border-[#6b4c20]">
+                <span className="font-mono text-[8.5px] sm:text-[10px] text-amber-300 bg-black/60 px-1 rounded border border-[#6b4c20]">
                   Lv.{khan.level}
                 </span>
                 {khan.unspentSkillPoints > 0 && (
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                )}
+              </button>
+            )}
+
+            {/* Beylik Kudreti Rozeti */}
+            {playerKudret > 0 && (
+              <div 
+                title={`Cihan Hükümranlık Kudreti: ${formatNum(playerKudret)} ⚔️`}
+                className="hidden sm:flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border border-amber-400/80 bg-gradient-to-r from-[#3d2613] to-[#221307] shadow-md font-mono text-[10px] sm:text-xs font-black text-amber-300"
+              >
+                <span>⚔️</span>
+                <span className="hidden md:inline">{formatNum(playerKudret)}</span>
+              </div>
+            )}
+
+            {/* Şifahane / Tabip Otağı Butonu */}
+            {onOpenHospitalModal && (
+              <button
+                onClick={onOpenHospitalModal}
+                title={`Şifahane: ${woundedSoldiersCount} Yaralı Asker`}
+                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg border shadow-md transition cursor-pointer active:scale-95 ${
+                  woundedSoldiersCount > 0
+                    ? 'bg-gradient-to-r from-rose-950 to-rose-900 border-rose-500 text-rose-200 animate-pulse'
+                    : 'bg-[#221307] border-[#704820] text-[#cfbda4] hover:border-rose-400 hover:text-white'
+                }`}
+              >
+                <span className="text-xs">🏥</span>
+                <span className="text-[10px] font-serif font-bold hidden xl:inline">Şifahane</span>
+                {woundedSoldiersCount > 0 && (
+                  <span className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white font-mono text-[8px] flex items-center justify-center font-bold">
+                    {woundedSoldiersCount}
+                  </span>
                 )}
               </button>
             )}
@@ -285,10 +323,10 @@ export const ResourceHeader: React.FC<ResourceHeaderProps> = ({
               <button
                 onClick={onOpenVictoryModal}
                 title="Cihan Hâkimiyeti & Zafer Divanı"
-                className="p-1 sm:px-2 sm:py-1 rounded-lg border border-[#855e2d] bg-[#221307] hover:border-amber-400 text-amber-300 hover:text-amber-100 transition cursor-pointer shadow-md flex items-center gap-1 active:scale-95 touch-manipulation"
+                className="p-1 sm:px-2 sm:py-0.5 rounded-lg border border-[#855e2d] bg-[#221307] hover:border-amber-400 text-amber-300 hover:text-amber-100 transition cursor-pointer shadow-md flex items-center gap-1 active:scale-95 touch-manipulation"
               >
-                <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="text-[10px] font-serif font-bold hidden lg:inline">Zafer</span>
+                <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 shrink-0" />
+                <span className="text-[10px] font-serif font-bold hidden 2xl:inline">Zafer</span>
               </button>
             )}
           </div>

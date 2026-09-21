@@ -95,6 +95,13 @@ import {
 } from './types/military';
 import { loadPlayerAlliance, savePlayerAlliance } from './engine/allianceEngine';
 import { Alliance } from './types/game';
+import { RoyalMarketView } from './components/RoyalMarketView';
+import { LeaderboardView } from './components/LeaderboardView';
+import { HospitalModal } from './components/HospitalModal';
+import { calculatePlayerKudret, generateLeaderboard } from './engine/kudretEngine';
+import { DIVAN_PETITIONS, INITIAL_MARKET_BARGAINS, INITIAL_IMPERIAL_QUESTS } from './data/divanData';
+import { DivanPetition, ActiveDivanBuff, HorseBreed, MarketBargain, ImperialQuest, WoundedSoldierGroup } from './types/divanTypes';
+import { ResourceType } from './types/game';
 
 export default function App() {
   // 1. Köy ve Oyun Durumları (Local Storage Destekli Çoklu Köy Sistemi)
@@ -216,19 +223,99 @@ export default function App() {
   const [battleReports, setBattleReports] = useState<BattleReport[]>(() => {
     const saved = localStorage.getItem('beylikler_reports');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+      try { 
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const seen = new Set<string>();
+          return parsed.filter((r: BattleReport) => {
+            if (!r || !r.id || seen.has(r.id)) return false;
+            seen.add(r.id);
+            return true;
+          });
+        }
+      } catch (e) { /* ignore */ }
     }
     return [];
   });
 
   // Navigasyon & Modal Durumları (Varsayılan: Geniş Temel Anadolu Haritası)
-  const [activeTab, setActiveTab] = useState<'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture'>('map');
+  const [activeTab, setActiveTab] = useState<any>('map');
   const [activeBuildingModal, setActiveBuildingModal] = useState<BuildingType | null>(null);
   const [isFoundVillageModalOpen, setIsFoundVillageModalOpen] = useState<boolean>(false);
   const [isKhanModalOpen, setIsKhanModalOpen] = useState<boolean>(false);
   const [isVictoryPanelOpen, setIsVictoryPanelOpen] = useState<boolean>(false);
   const [isWorkerDrawerOpen, setIsWorkerDrawerOpen] = useState<boolean>(false);
   const [alliance, setAlliance] = useState<Alliance>(() => loadPlayerAlliance());
+
+  // Divan, Pazar, Sıralama, Şifahane ve Hükümdar Görevleri State'leri
+  const [petitions, setPetitions] = useState<DivanPetition[]>(() => {
+    const saved = localStorage.getItem('otag_petitions');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+    }
+    return DIVAN_PETITIONS;
+  });
+
+  const [activeBuffs, setActiveBuffs] = useState<ActiveDivanBuff[]>(() => {
+    const saved = localStorage.getItem('otag_buffs');
+    if (saved) {
+      try { 
+        const parsed: ActiveDivanBuff[] = JSON.parse(saved);
+        return parsed.filter(b => b.expiresAt > Date.now());
+      } catch (e) { /* ignore */ }
+    }
+    return [];
+  });
+
+  const [marketBargains, setMarketBargains] = useState<MarketBargain[]>(() => {
+    const saved = localStorage.getItem('otag_bargains');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+    }
+    return INITIAL_MARKET_BARGAINS;
+  });
+
+  const [imperialQuests, setImperialQuests] = useState<ImperialQuest[]>(() => {
+    const saved = localStorage.getItem('otag_quests');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as ImperialQuest[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge with initial quest definitions to guarantee latest targetType & keys
+          return INITIAL_IMPERIAL_QUESTS.map(initQ => {
+            const match = parsed.find(p => p.id === initQ.id);
+            if (match) {
+              return {
+                ...initQ,
+                currentCount: typeof match.currentCount === 'number' ? match.currentCount : initQ.currentCount,
+                isCompleted: !!match.isCompleted,
+                isClaimed: !!match.isClaimed,
+              };
+            }
+            return initQ;
+          });
+        }
+      } catch (e) { /* ignore */ }
+    }
+    return INITIAL_IMPERIAL_QUESTS;
+  });
+
+  const [isQuestBannerDismissed, setIsQuestBannerDismissed] = useState<boolean>(() => {
+    return localStorage.getItem('otag_quest_banner_dismissed') === 'true';
+  });
+
+  const [woundedGroups, setWoundedGroups] = useState<WoundedSoldierGroup[]>(() => {
+    const saved = localStorage.getItem('otag_wounded');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+    }
+    return [
+      { unitType: 'mizrakli', count: 4, grainHealCostPerUnit: 25, goldHealCostPerUnit: 10, healDurationSecPerUnit: 1 },
+      { unitType: 'hafif_suvari', count: 2, grainHealCostPerUnit: 40, goldHealCostPerUnit: 20, healDurationSecPerUnit: 1 }
+    ];
+  });
+
+  const [isHospitalModalOpen, setIsHospitalModalOpen] = useState<boolean>(false);
 
   const [lockedFaction, setLockedFaction] = useState<FactionId | null>(() => {
     return localStorage.getItem('otag_locked_faction') as FactionId | null;
@@ -393,6 +480,27 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('beylikler_reports', JSON.stringify(battleReports));
   }, [battleReports]);
+
+  // Divan & Kudret LocalStorage Kayıtları
+  useEffect(() => {
+    localStorage.setItem('otag_petitions', JSON.stringify(petitions));
+  }, [petitions]);
+
+  useEffect(() => {
+    localStorage.setItem('otag_buffs', JSON.stringify(activeBuffs));
+  }, [activeBuffs]);
+
+  useEffect(() => {
+    localStorage.setItem('otag_bargains', JSON.stringify(marketBargains));
+  }, [marketBargains]);
+
+  useEffect(() => {
+    localStorage.setItem('otag_quests', JSON.stringify(imperialQuests));
+  }, [imperialQuests]);
+
+  useEffect(() => {
+    localStorage.setItem('otag_wounded', JSON.stringify(woundedGroups));
+  }, [woundedGroups]);
 
   // Bildirim zaman aşımı
   const showBanner = (msg: string) => {
@@ -572,7 +680,12 @@ export default function App() {
         });
 
         if (tickRes.newReports.length > 0) {
-          setBattleReports(prev => [...tickRes.newReports, ...prev]);
+          setBattleReports(prev => {
+            const existingIds = new Set(prev.map(r => r.id));
+            const uniqueNew = tickRes.newReports.filter(r => !existingIds.has(r.id));
+            if (uniqueNew.length === 0) return prev;
+            return [...uniqueNew, ...prev];
+          });
         }
 
         if (tickRes.notifications.length > 0) {
@@ -1081,6 +1194,273 @@ export default function App() {
     showBanner('⚡ +100.000 Test Kaynağı ortak hazineye aktarıldı!');
   };
 
+  // Kudret & Sıralama
+  const playerKudret = calculatePlayerKudret(playerVillages, khan);
+  const leaderboardEntries = generateLeaderboard(playerKudret, khan?.name || 'Hükümdar', village.faction, playerVillages.length);
+  const currentImperialQuest = imperialQuests.find(q => !q.isClaimed) || null;
+  const totalWoundedCount = woundedGroups.reduce((acc, g) => acc + g.count, 0);
+
+  // Otomatik Hükümdar Görev İlerlemesi Senkronizasyonu
+  useEffect(() => {
+    setImperialQuests(prev => prev.map(q => {
+      if (q.isClaimed) return q;
+      let newAmount = q.currentCount;
+
+      // 1. Şehir Merkezi / Belirli Bina Seviyeleri (Tüm oyuncu köyleri kontrol edilir)
+      if (q.targetType === 'building_level' || q.id === 'quest_th_lvl' || q.id === 'quest_townhall_2') {
+        const targetBld = q.targetKey || 'town_hall';
+        const maxLevel = Math.max(1, ...playerVillages.map(v => v.buildings?.[targetBld] || 0));
+        newAmount = Math.max(newAmount, maxLevel);
+      } 
+      // 2. Asker Mevcudu (Tüm köylerdeki birlik toplamı)
+      else if (q.targetType === 'train_units' || q.id === 'quest_train_army' || q.id === 'quest_army_1') {
+        const totalUnits = playerVillages.reduce<number>((sum: number, v) => 
+          sum + Object.values(v.units || {}).reduce<number>((a: number, b: unknown) => a + (typeof b === 'number' ? b : 0), 0), 0
+        );
+        newAmount = Math.max(newAmount, totalUnits);
+      }
+      // 3. Kışla Seviyesi
+      else if (q.id === 'quest_barracks_1') {
+        const maxBarracks = Math.max(0, ...playerVillages.map(v => v.buildings?.barracks || 0));
+        newAmount = Math.max(newAmount, maxBarracks);
+      }
+
+      const isCompleted = newAmount >= q.targetCount;
+      if (isCompleted !== q.isCompleted || newAmount !== q.currentCount) {
+        if (isCompleted && !q.isCompleted) {
+          showBanner(`📜 Hükümdar Görevi Tamamlandı: "${q.title}"! Ödülünüzü toplayabilirsiniz.`);
+        }
+        return { ...q, currentCount: Math.min(q.targetCount, newAmount), isCompleted };
+      }
+      return q;
+    }));
+  }, [playerVillages, village.buildings, village.units]);
+
+  const advanceQuestProgress = (type: string, delta: number = 1) => {
+    setImperialQuests(prev => prev.map(q => {
+      if (q.isClaimed) return q;
+      let matches = false;
+      if (type === 'divan' && (q.targetType === 'divan_decree' || q.id === 'quest_divan_decree' || q.id === 'quest_divan_1' || q.title.includes('Ferman') || q.title.includes('Divan'))) matches = true;
+      if (type === 'market' && (q.targetType === 'market_trade' || q.id === 'quest_trade_market' || q.id === 'quest_market_1' || q.title.includes('Ticaret') || q.title.includes('Pazar'))) matches = true;
+      if (type === 'horse' && (q.targetType === 'horse_purchase' || q.id === 'quest_horse_bazaar' || q.id === 'quest_horse_1' || q.title.includes('At') || q.title.includes('Süvari'))) matches = true;
+      if (type === 'train_units' && (q.targetType === 'train_units' || q.id === 'quest_train_army' || q.id === 'quest_army_1' || q.title.includes('Akıncı') || q.title.includes('Asker'))) matches = true;
+      if (type === 'hospital' && (q.title.includes('Şifahane') || q.title.includes('Tedavi'))) matches = true;
+
+      if (matches) {
+        const newProgress = Math.min(q.targetCount, q.currentCount + delta);
+        const isCompleted = newProgress >= q.targetCount;
+        if (isCompleted && !q.isCompleted) {
+          showBanner(`📜 Hükümdar Görevi Tamamlandı: "${q.title}"! Ödülünüzü toplayabilirsiniz.`);
+        }
+        return { ...q, currentCount: newProgress, isCompleted };
+      }
+      return q;
+    }));
+  };
+
+  // Divan Fermanı Kabul Etme
+  const handleEnactDecree = (petitionId: string, choiceId: string) => {
+    const petition = petitions.find(p => p.id === petitionId);
+    if (!petition) return;
+    const choice = petition.choices.find(c => c.id === choiceId);
+    if (!choice) return;
+
+    const canAfford = 
+      village.resources.gold >= (choice.cost?.gold || 0) &&
+      village.resources.grain >= (choice.cost?.grain || 0) &&
+      village.resources.wood >= (choice.cost?.wood || 0) &&
+      village.resources.stone >= (choice.cost?.stone || 0) &&
+      village.resources.iron >= (choice.cost?.iron || 0);
+
+    if (!canAfford) {
+      showBanner('❌ Bu fermanı yürürlüğe koymak için hazinede yeterli kaynak yok!');
+      return;
+    }
+
+    setPlayerVillages(prev => prev.map(v => ({
+      ...v,
+      resources: {
+        gold: Math.max(0, (v.resources?.gold || 0) - (choice.cost?.gold || 0) + (choice.instantReward?.gold || 0)),
+        grain: Math.max(0, (v.resources?.grain || 0) - (choice.cost?.grain || 0) + (choice.instantReward?.grain || 0)),
+        wood: Math.max(0, (v.resources?.wood || 0) - (choice.cost?.wood || 0) + (choice.instantReward?.wood || 0)),
+        stone: Math.max(0, (v.resources?.stone || 0) - (choice.cost?.stone || 0) + (choice.instantReward?.stone || 0)),
+        iron: Math.max(0, (v.resources?.iron || 0) - (choice.cost?.iron || 0) + (choice.instantReward?.iron || 0)),
+      },
+      horses: (v.horses || 0) + (choice.instantReward?.horses || 0)
+    })));
+
+    if (choice.buff) {
+      const newBuff: ActiveDivanBuff = {
+        id: `buff_${Date.now()}`,
+        name: choice.buff.name,
+        description: choice.buff.description,
+        type: choice.buff.type,
+        valuePercent: choice.buff.valuePercent,
+        expiresAt: Date.now() + (choice.buff.durationMinutes * 60 * 1000)
+      };
+      setActiveBuffs(prev => [...prev.filter(b => b.expiresAt > Date.now()), newBuff]);
+    }
+
+    setPetitions(prev => {
+      const remaining = prev.filter(p => p.id !== petitionId);
+      const current = prev.find(p => p.id === petitionId);
+      if (current) {
+        return [...remaining, { ...current, isResolved: true }];
+      }
+      return remaining;
+    });
+
+    advanceQuestProgress('divan', 1);
+    showBanner(`📜 Ferman Yürürlüğe Girdi: ${choice.text}!`);
+  };
+
+  // Pazar Kaynak Takası
+  const handleTradeResources = (giveType: ResourceType, giveAmount: number, receiveType: ResourceType, receiveAmount: number) => {
+    if ((village.resources[giveType] || 0) < giveAmount) {
+      showBanner(`❌ Takas için yeterli ${giveType} kaynağınız yok!`);
+      return;
+    }
+
+    setPlayerVillages(prev => prev.map(v => ({
+      ...v,
+      resources: {
+        ...v.resources,
+        [giveType]: Math.max(0, (v.resources[giveType] || 0) - giveAmount),
+        [receiveType]: (v.resources[receiveType] || 0) + receiveAmount
+      }
+    })));
+
+    advanceQuestProgress('market', 1);
+    showBanner(`⚖️ Pazar Takası Başarılı: -${giveAmount} ${giveType} ➔ +${receiveAmount} ${receiveType}`);
+  };
+
+  // At Satın Alma
+  const handleBuyHorse = (breed: HorseBreed) => {
+    if (village.resources.gold < breed.costGold || village.resources.grain < breed.costGrain) {
+      showBanner('❌ Bu cins atı almak için yeterli Altın veya Tahıl yok!');
+      return;
+    }
+
+    setPlayerVillages(prev => prev.map(v => ({
+      ...v,
+      resources: {
+        ...v.resources,
+        gold: Math.max(0, v.resources.gold - breed.costGold),
+        grain: Math.max(0, v.resources.grain - breed.costGrain)
+      },
+      horses: (v.horses || 0) + 1
+    })));
+
+    advanceQuestProgress('horse', 1);
+    showBanner(`🐎 ${breed.name} beylik harasına katıldı!`);
+  };
+
+  // Pazar Fırsat Paketi
+  const handleBuyBargain = (bargainId: string) => {
+    const item = marketBargains.find(b => b.id === bargainId);
+    if (!item || item.stock <= 0) {
+      showBanner('❌ Bu kervan fırsatı tükenmiştir!');
+      return;
+    }
+
+    const goldCost = item.costs?.gold || 0;
+    if (village.resources.gold < goldCost) {
+      showBanner('❌ Kervan paketi için yeterli Altınınız yok!');
+      return;
+    }
+
+    setPlayerVillages(prev => prev.map(v => ({
+      ...v,
+      resources: {
+        ...v.resources,
+        gold: Math.max(0, v.resources.gold - goldCost),
+        wood: (v.resources?.wood || 0) + (item.gives?.wood || 0),
+        stone: (v.resources?.stone || 0) + (item.gives?.stone || 0),
+        iron: (v.resources?.iron || 0) + (item.gives?.iron || 0),
+        grain: (v.resources?.grain || 0) + (item.gives?.grain || 0),
+      },
+      horses: (v.horses || 0) + (item.gives?.horses || 0)
+    })));
+
+    setMarketBargains(prev => prev.map(b => b.id === bargainId ? { ...b, stock: b.stock - 1 } : b));
+    advanceQuestProgress('market', 1);
+    showBanner(`✨ Kervan Paketi '${item.title}' başarıyla satın alındı!`);
+  };
+
+  // Şifahane Tedavisi
+  const handleHealUnits = (unitType: UnitType, count: number) => {
+    const group = woundedGroups.find(g => g.unitType === unitType);
+    if (!group || group.count < count) return;
+
+    const totalGrainCost = group.grainHealCostPerUnit * count;
+    const totalGoldCost = group.goldHealCostPerUnit * count;
+
+    if (village.resources.grain < totalGrainCost || village.resources.gold < totalGoldCost) {
+      showBanner('❌ Yaralıları iyileştirmek için yeterli Şifa Tahılı ve Tabip Altını yok!');
+      return;
+    }
+
+    setPlayerVillages(prev => prev.map(v => {
+      if (v.id === village.id) {
+        return {
+          ...v,
+          resources: {
+            ...v.resources,
+            grain: Math.max(0, v.resources.grain - totalGrainCost),
+            gold: Math.max(0, v.resources.gold - totalGoldCost)
+          },
+          units: {
+            ...v.units,
+            [unitType]: (v.units[unitType] || 0) + count
+          }
+        };
+      }
+      return v;
+    }));
+
+    setWoundedGroups(prev => prev.map(g => {
+      if (g.unitType === unitType) {
+        return { ...g, count: Math.max(0, g.count - count) };
+      }
+      return g;
+    }).filter(g => g.count > 0));
+
+    advanceQuestProgress('hospital', count);
+    showBanner(`💚 ${count} adet ${UNITS[unitType]?.name || unitType} şifahanede tedavi edildi ve orduya katıldı!`);
+  };
+
+  // Görev Ödülü
+  const handleClaimQuestReward = (questId: string) => {
+    const quest = imperialQuests.find(q => q.id === questId);
+    if (!quest || quest.isClaimed) return;
+    const isReady = quest.isCompleted || (quest.currentCount >= quest.targetCount);
+    if (!isReady) return;
+
+    setPlayerVillages(prev => prev.map(v => ({
+      ...v,
+      resources: {
+        gold: (v.resources?.gold || 0) + (quest.reward.resources?.gold || 0),
+        wood: (v.resources?.wood || 0) + (quest.reward.resources?.wood || 0),
+        stone: (v.resources?.stone || 0) + (quest.reward.resources?.stone || 0),
+        iron: (v.resources?.iron || 0) + (quest.reward.resources?.iron || 0),
+        grain: (v.resources?.grain || 0) + (quest.reward.resources?.grain || 0),
+      }
+    })));
+
+    setImperialQuests(prev => prev.map(q => q.id === questId ? { ...q, isClaimed: true, isCompleted: true } : q));
+    showBanner(`🏆 Hükümdar Görevi Tamamlandı! +${quest.reward.kudret} Kudret ve ödüller ortak hazineye aktarıldı.`);
+  };
+
+  // Göreve Yönlendirme
+  const handleNavigateQuest = (quest: ImperialQuest) => {
+    if (quest.navigationTab) {
+      setActiveTab(quest.navigationTab);
+    }
+    if (quest.navigationBuilding) {
+      setActiveBuildingModal(quest.navigationBuilding as BuildingType);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans selection:bg-amber-800 selection:text-white">
       
@@ -1097,13 +1477,16 @@ export default function App() {
           setFoundVillagePrefilledCoords(null);
           setIsFoundVillageModalOpen(true);
         }}
-        onOpenFactionModal={() => setLockedFaction(false)}
+        onOpenFactionModal={() => setLockedFaction(null)}
         onOpenKhanModal={() => setIsKhanModalOpen(true)}
         onOpenVictoryModal={() => setIsVictoryPanelOpen(true)}
         onOpenWorkerDrawer={() => setIsWorkerDrawerOpen(true)}
+        onOpenHospitalModal={() => setIsHospitalModalOpen(true)}
         onAddTestResources={handleAddTestResources}
         activeMarchesCount={activeMarches.length}
         unreadReportsCount={battleReports.length}
+        playerKudret={playerKudret}
+        woundedSoldiersCount={totalWoundedCount}
       />
 
       {/* Canlı Sistem Bildirimi / Toast Banner (Layout zıplamasını önlemek için fixed overlay) */}
@@ -1142,6 +1525,7 @@ export default function App() {
             onNavigateToMap={() => setActiveTab('map')}
             onSelectTab={setActiveTab}
             onOpenVictoryPanel={() => setIsVictoryPanelOpen(true)}
+            onTrainUnits={handleTrainUnits}
           />
         )}
 
@@ -1163,6 +1547,7 @@ export default function App() {
             onOpenTownHall={() => setActiveBuildingModal('town_hall')}
             onOpenBuilding={(bType) => setActiveBuildingModal(bType)}
             onSelectTab={setActiveTab}
+            onOpenFactionModal={() => setLockedFaction(null)}
             onSelectVillage={handleSelectVillage}
             onOpenFoundVillageModal={(coords) => {
               setFoundVillagePrefilledCoords(coords || null);
@@ -1190,6 +1575,7 @@ export default function App() {
           <BattleReportsView 
             reports={battleReports}
             onClearReports={() => setBattleReports([])}
+            onDeleteReport={(id) => setBattleReports(prev => prev.filter(r => r.id !== id))}
           />
         )}
 
@@ -1199,6 +1585,26 @@ export default function App() {
 
         {activeTab === 'architecture' && (
           <ArchitectureModal />
+        )}
+
+        {/* Has Bahçe & Kapalıçarşı / Bedesten (Kaynak Takası & At Harası) */}
+        {activeTab === 'market' && (
+          <RoyalMarketView 
+            resources={village.resources}
+            villageHorses={village.horses || 0}
+            bargains={marketBargains}
+            onTradeResources={handleTradeResources}
+            onBuyHorse={handleBuyHorse}
+            onBuyBargain={handleBuyBargain}
+          />
+        )}
+
+        {/* Kudret Tahtı & Cihan Beylikleri Sıralaması */}
+        {activeTab === 'ranking' && (
+          <LeaderboardView 
+            entries={leaderboardEntries}
+            playerKudret={playerKudret}
+          />
         )}
 
       </main>
@@ -1327,6 +1733,17 @@ export default function App() {
         onAssignWorkers={handleAssignWorkers}
         onApplyVillageUpdate={handleApplyVillageUpdate}
       />
+
+      {/* Şifahane / Tabip Otağı (Yaralı Asker Tedavisi) */}
+      {isHospitalModalOpen && (
+        <HospitalModal 
+          isOpen={isHospitalModalOpen}
+          onClose={() => setIsHospitalModalOpen(false)}
+          woundedGroups={woundedGroups}
+          villageResources={village.resources}
+          onHealUnits={handleHealUnits}
+        />
+      )}
 
       {/* Sabit Alt Navigasyon Çubuğu (Bottom Navigation Bar) */}
       <BottomNavBar 

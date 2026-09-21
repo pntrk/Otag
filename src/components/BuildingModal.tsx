@@ -643,10 +643,10 @@ function BarracksContent({ village, onTrain }: { village: Village; onTrain: (u: 
   const faction = FACTIONS[village.faction];
   const bLvl = village.buildings.barracks || 0;
 
-  // Bu beyliğin kışlasında üretilebilen piyade ve muhasara birlikleri
+  // Bu beyliğin kışlasında üretilebilen piyade ve muhasara birlikleri (Özel birim en başta)
   const allBarracksUnits: UnitType[] = ['mizrakli', 'kilicli', 'gulam', 'levent', 'kocbasi'];
   if (faction.specialUnitId && !allBarracksUnits.includes(faction.specialUnitId as UnitType)) {
-    allBarracksUnits.push(faction.specialUnitId as UnitType);
+    allBarracksUnits.unshift(faction.specialUnitId as UnitType);
   }
   const infantryUnits: UnitType[] = allBarracksUnits.filter(uId => isUnitProducibleByFaction(uId, village.faction));
 
@@ -684,7 +684,7 @@ function StablesContent({ village, onTrain }: { village: Village; onTrain: (u: U
 
   const allStablesUnits: UnitType[] = ['hafif_suvari'];
   if (faction.specialUnitId && !allStablesUnits.includes(faction.specialUnitId as UnitType)) {
-    allStablesUnits.push(faction.specialUnitId as UnitType);
+    allStablesUnits.unshift(faction.specialUnitId as UnitType);
   }
   const cavalryUnits: UnitType[] = allStablesUnits.filter(uId => isUnitProducibleByFaction(uId, village.faction));
 

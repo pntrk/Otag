@@ -156,6 +156,7 @@ export interface ResourceNode {
   x: number;
   y: number;
   baseYieldPerHour: number;
+  baseYield?: number;        // Geriye uyumluluk için
   efficiency?: number;       // Saatlik verimlilik değeri (2 - 9)
   assignedWorkers?: number;  // Çalışan toplam işçi sayısı (Maks 1000)
   tier: 1 | 2 | 3;
@@ -312,6 +313,10 @@ export interface TrainingQueueItem {
   remainingAmount: number;
   unitDurationSec: number;
   nextFinishTime: number;
+  count?: number;
+  startTime?: number;
+  endTime?: number;
+  durationSec?: number;
 }
 
 export type MarchMission = 'attack' | 'raid' | 'support' | 'spy' | 'trade';
@@ -331,6 +336,7 @@ export interface March {
   durationSec: number;
   arrivalTime: number;
   isReturning: boolean;
+  status?: 'marching' | 'completed' | 'returning';
   loot?: Partial<Resources>;
   transportResources?: Partial<Resources>; // Kervanın taşıdığı takas/aktarım hammaddeleri
   capturedVillagers?: number; // Yağmada esir edilen boşta köylüler
@@ -350,6 +356,7 @@ export interface DamagedBuildingInfo {
   buildingName: string;
   levelBefore: number;
   levelAfter: number;
+  destroyedLevels?: number;
 }
 
 export interface BattleReport {

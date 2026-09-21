@@ -57,6 +57,7 @@ interface UmaykutVillageInteriorProps {
   onNavigateToMap: () => void;
   onSelectTab?: (tab: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture') => void;
   onOpenVictoryPanel?: () => void;
+  onTrainUnits?: (unitType: UnitType, amount: number) => void;
 }
 
 // Köy İçi Binaları Tanımı
@@ -284,6 +285,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
   onSelectTab,
   onOpenVictoryPanel,
   onAssignBuildingToPlot,
+  onTrainUnits,
 }) => {
   const faction = FACTIONS[village.faction] || FACTIONS.osmanogullari;
   const townHallLevel = village.buildings.town_hall || 6;
@@ -737,6 +739,7 @@ export const UmaykutVillageInterior: React.FC<UmaykutVillageInteriorProps> = ({
         <UnitCarousel 
           village={village}
           onOpenBuilding={onOpenBuilding}
+          onTrainUnits={onTrainUnits}
         />
 
       </div>

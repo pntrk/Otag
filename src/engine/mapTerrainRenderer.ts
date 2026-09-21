@@ -28,9 +28,52 @@ export const renderMapTerrain = (
   width: number,
   height: number,
   camera: { x: number; y: number },
-  zoom: number
+  zoom: number,
+  mode: string = 'umaykut_meadow'
 ) => {
   const tileSize = 40 * zoom;
+
+  // Özel Stratejik Modlar İçin Zemin İşleme
+  if (mode === 'parchment') {
+    const pGrad = ctx.createLinearGradient(0, 0, width, height);
+    pGrad.addColorStop(0, '#f5ecd7');
+    pGrad.addColorStop(0.5, '#ede0c2');
+    pGrad.addColorStop(1, '#dfceaa');
+    ctx.fillStyle = pGrad;
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
+  if (mode === 'political') {
+    const polGrad = ctx.createLinearGradient(0, 0, width, height);
+    polGrad.addColorStop(0, '#ebe0ca');
+    polGrad.addColorStop(0.5, '#ded1b6');
+    polGrad.addColorStop(1, '#d1c2a3');
+    ctx.fillStyle = polGrad;
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
+  if (mode === 'military') {
+    const milGrad = ctx.createLinearGradient(0, 0, width, height);
+    milGrad.addColorStop(0, '#15100c');
+    milGrad.addColorStop(0.5, '#1e140d');
+    milGrad.addColorStop(1, '#121914');
+    ctx.fillStyle = milGrad;
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
+  if (mode === 'economic') {
+    const ecoGrad = ctx.createLinearGradient(0, 0, width, height);
+    ecoGrad.addColorStop(0, '#2d4424');
+    ecoGrad.addColorStop(0.5, '#3b4e1e');
+    ecoGrad.addColorStop(1, '#483c18');
+    ctx.fillStyle = ecoGrad;
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
   if (grassImage.complete && grassImage.naturalWidth > 0) {
     const patternCanvas = getScaledGrassCanvas(grassImage, 0.20);
     const pattern = ctx.createPattern(patternCanvas, 'repeat');

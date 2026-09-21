@@ -110,7 +110,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
             🛡️
           </div>
           <h2 className="text-xs sm:text-sm font-bold text-[#fde4a9] tracking-wider uppercase">
-            Divan & İdare Paneli
+            Beylik İdare Paneli
           </h2>
         </div>
         <span className="text-[10px] font-mono text-amber-300/80 bg-black/60 px-1.5 py-0.5 rounded border border-[#5a3a19]">
@@ -318,7 +318,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   onClick={() => onSelectTab('military')}
                   className="w-full py-1 text-[10px] text-amber-300 hover:text-amber-100 font-bold bg-[#261509] hover:bg-[#3d2310] rounded border border-[#5e3b19] transition cursor-pointer text-center"
                 >
-                  Ordugâh ve Sefer Divanına Git →
+                  Ordugâh ve Sefer Paneline Git →
                 </button>
               )}
             </div>
@@ -379,9 +379,13 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                   {/* Asker Talimleri */}
                   {trainingQueue.map((item, idx) => {
                     const uDef = UNITS[item.unitType];
-                    const remainingSec = Math.max(0, Math.ceil((item.endTime - now) / 1000));
-                    const elapsed = Math.max(0, (now - item.startTime) / 1000);
-                    const progress = Math.min(100, Math.max(0, (elapsed / Math.max(1, item.durationSec)) * 100));
+                    const count = item.count ?? item.remainingAmount ?? item.amount;
+                    const durationSec = item.durationSec ?? item.unitDurationSec;
+                    const endTime = item.endTime ?? item.nextFinishTime;
+                    const startTime = item.startTime ?? (endTime - durationSec * 1000);
+                    const remainingSec = Math.max(0, Math.ceil((endTime - now) / 1000));
+                    const elapsed = Math.max(0, (now - startTime) / 1000);
+                    const progress = Math.min(100, Math.max(0, (elapsed / Math.max(1, durationSec)) * 100));
 
                     return (
                       <div key={`tq_${idx}`} className="bg-[#120b06] border border-[#3d2712] p-1.5 rounded space-y-1">
@@ -389,7 +393,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                           <span className="font-bold text-amber-200 flex items-center gap-1">
                             <span>⚔️</span>
                             <span>{uDef?.name || item.unitType}</span>
-                            <span className="font-mono text-emerald-400">x{item.count}</span>
+                            <span className="font-mono text-emerald-400">x{count}</span>
                           </span>
                           <span className="font-mono text-stone-300 bg-black/60 px-1 rounded">
                             {formatSeconds(remainingSec)}

@@ -29,6 +29,7 @@ interface VillageViewProps {
   onNavigateToMap: () => void;
   onSelectTab?: (tab: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture') => void;
   onOpenVictoryPanel?: () => void;
+  onTrainUnits?: (unitType: any, amount: number) => void;
 }
 
 export const VillageView: React.FC<VillageViewProps> = ({
@@ -48,6 +49,7 @@ export const VillageView: React.FC<VillageViewProps> = ({
   onNavigateToMap,
   onSelectTab = () => {},
   onOpenVictoryPanel,
+  onTrainUnits,
 }) => {
   // Varsayılan görünüm: 'umaykut' (Orijinal Umaykut Otağ ve Köy İçi Görünümü)
   const [viewStyle, setViewStyle] = useState<'umaykut' | 'cards'>('umaykut');
@@ -109,6 +111,7 @@ export const VillageView: React.FC<VillageViewProps> = ({
           onNavigateToMap={onNavigateToMap}
           onSelectTab={onSelectTab}
           onOpenVictoryPanel={onOpenVictoryPanel}
+          onTrainUnits={onTrainUnits}
         />
       ) : (
         /* 2. SADE OLDSCHOOL BİNA KARTLARI LİSTE MODU */

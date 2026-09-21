@@ -19,8 +19,8 @@ interface HeaderBarProps {
   village: Village;
   playerVillages?: Village[];
   rates: ResourceRate;
-  activeTab?: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture';
-  onSelectTab?: (tab: 'village' | 'map' | 'military' | 'reports' | 'simulator' | 'architecture') => void;
+  activeTab?: any;
+  onSelectTab?: (tab: any) => void;
   onSelectVillage?: (villageId: string) => void;
   onOpenFoundVillageModal?: () => void;
   onOpenFactionModal?: () => void;
@@ -29,8 +29,12 @@ interface HeaderBarProps {
   onOpenKhanModal?: () => void;
   onOpenVictoryModal?: () => void;
   onOpenWorkerDrawer?: () => void;
+  onOpenHospitalModal?: () => void;
   activeMarchesCount?: number;
   unreadReportsCount?: number;
+  playerKudret?: number;
+  activeBuffsCount?: number;
+  woundedSoldiersCount?: number;
 }
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -47,8 +51,12 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   onOpenKhanModal,
   onOpenVictoryModal,
   onOpenWorkerDrawer,
+  onOpenHospitalModal,
   activeMarchesCount,
   unreadReportsCount,
+  playerKudret = 0,
+  activeBuffsCount = 0,
+  woundedSoldiersCount = 0,
 }) => {
   const faction = FACTIONS[village.faction] || FACTIONS.osmanogullari;
   const [isVillageMenuOpen, setIsVillageMenuOpen] = useState(false);
@@ -214,6 +222,38 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               >
                 <Crown className="w-4 h-4 text-[#fef08a] group-hover:scale-110 transition-transform" />
                 <span className="text-xs font-bold font-serif text-[#fef08a] hidden sm:block">Hakan</span>
+              </button>
+            )}
+
+            {/* Beylik Kudreti (Power) Rozeti */}
+            {playerKudret > 0 && (
+              <div 
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-b from-[#4a2e0a] via-[#331c05] to-[#1a0e02] border border-amber-400/80 rounded-md shadow-md text-xs font-mono font-black text-amber-300 ml-1"
+                title={`Toplam Beylik Kudreti: ${formatNum(playerKudret)}`}
+              >
+                <span className="text-sm">⚔️</span>
+                <span>{formatNum(playerKudret)}</span>
+              </div>
+            )}
+
+            {/* Şifahane / Tabip Otağı Butonu */}
+            {onOpenHospitalModal && (
+              <button
+                onClick={onOpenHospitalModal}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border shadow-md transition cursor-pointer ml-1 ${
+                  woundedSoldiersCount > 0
+                    ? 'bg-gradient-to-b from-rose-900 to-rose-950 border-rose-500 text-rose-200 animate-pulse'
+                    : 'bg-gradient-to-b from-[#2a170c] to-[#170e07] border-[#5a3a1f] text-[#cfbda4] hover:brightness-125'
+                }`}
+                title={`Şifahane: ${woundedSoldiersCount} Yaralı Asker`}
+              >
+                <span className="text-xs">🏥</span>
+                <span className="text-xs font-serif font-bold hidden sm:block">Şifahane</span>
+                {woundedSoldiersCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-rose-500 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+                    {woundedSoldiersCount}
+                  </span>
+                )}
               </button>
             )}
 

@@ -382,7 +382,7 @@ export const CanvasMapGrid: React.FC<CanvasMapGridProps> = ({
                 <span className="text-[#8f2b18] font-semibold">⚔️ <strong>{selectedRival.name}</strong> (Düşman Otağı / Sahibi: {selectedRival.ownerName})</span>
               ) : selectedNode ? (
                 <span>
-                  Doğal Düğüm: <strong>{selectedNode.type.toUpperCase()}</strong> (+{selectedNode.baseYield}/saat) • 
+                  Doğal Düğüm: <strong>{selectedNode.type.toUpperCase()}</strong> (+{selectedNode.baseYieldPerHour ?? selectedNode.baseYield}/saat) • 
                   {isInsideInfluence ? (
                     <strong className="text-emerald-800 ml-1">✓ Yeşil etki alanınızda (Gelir Aktif)</strong>
                   ) : (

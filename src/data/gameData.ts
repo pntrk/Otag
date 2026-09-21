@@ -890,8 +890,19 @@ export const UNITS: Record<UnitType, UnitDefinition> = {
 export function isUnitProducibleByFaction(unitType: UnitType, factionId: FactionId): boolean {
   const def = UNITS[unitType];
   if (!def) return false;
-  if (def.factionRequired && def.factionRequired !== factionId) return false;
-  if (def.allowedFactions && !def.allowedFactions.includes(factionId)) return false;
+
+  const normalizeFaction = (f: string) => {
+    if (f === 'karaman' || f === 'karamanogullari') return 'karamanogullari';
+    if (f === 'osman' || f === 'osmanogullari') return 'osmanogullari';
+    if (f === 'germiyan' || f === 'germiyanogullari') return 'germiyanogullari';
+    if (f === 'candar' || f === 'candarogullari') return 'candarogullari';
+    if (f === 'dulkadir' || f === 'dulkadirogullari') return 'dulkadirogullari';
+    return f;
+  };
+
+  const normTarget = normalizeFaction(factionId);
+  if (def.factionRequired && normalizeFaction(def.factionRequired) !== normTarget) return false;
+  if (def.allowedFactions && !def.allowedFactions.map(normalizeFaction).includes(normTarget)) return false;
   return true;
 }
 

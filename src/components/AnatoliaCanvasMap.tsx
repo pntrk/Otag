@@ -33,7 +33,9 @@ import { AnatoliaMapRenderer, AnatoliaRenderOptions, AnatoliaMapMode } from '../
 import { UmaykutTacticalRenderer } from '../engine/umaykutTacticalRenderer';
 import { renderMapTerrain } from '../engine/mapTerrainRenderer';
 import { UmaykutRightPanel } from './UmaykutRightPanel';
-import { UmaykutTopHud } from './UmaykutTopHud';
+import { TacticalMinimapRadar } from './map/TacticalMinimapRadar';
+import { MapStrategicControls, StrategicMapMode } from './map/MapStrategicControls';
+import { MapSelectionInspector } from './map/MapSelectionInspector';
 import { QuickMarchModal, QuickMarchTarget } from './QuickMarchModal';
 import { DispatchMarchModal, DispatchMarchTarget } from './DispatchMarchModal';
 import { ActiveMarchesTicker } from './ActiveMarchesTicker';
@@ -230,14 +232,15 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
     y: playerVillage.y,
   });
 
-  // Harita Modu: Kalıcı ve Tek Standart Umaykut Taktik Çayır Zemin Görünümü
-  const mapMode = 'umaykut_meadow';
+  // Harita Modu: Stratejik Görünüm (Taktik Çayır, Tarihi Parşömen, Siyasi Beylikler, Ekonomik Isı, Askeri Tehdit)
+  const [mapMode, setMapMode] = useState<StrategicMapMode>('umaykut_meadow');
+  const [showRadar, setShowRadar] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [tileVersion, setTileVersion] = useState<number>(0);
   const customMapImageRef = useRef<HTMLImageElement | null>(null);
 
   // Taktik Görünüm & Keşif Filtreleri
-  const [filterType, setFilterType] = useState<'all' | 'grain' | 'iron' | 'wood' | 'stone' | 'rival'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'grain' | 'iron' | 'wood' | 'stone' | 'rival' | 'gold'>('all');
   const [showGrid, setShowGrid] = useState<boolean>(true);
   const [showInfluenceRings, setShowInfluenceRings] = useState<boolean>(true);
   const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
@@ -371,7 +374,7 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
     // ========================================================================
     // 1. ANADOLU UMAYKUT TAKTİK ÇAYIR ZEMİNİ & GEÇİRGEN DOĞAL SULAR
     // ========================================================================
-    renderMapTerrain(ctx, width, height, camera, zoom);
+    renderMapTerrain(ctx, width, height, camera, zoom, mapMode);
 
     UmaykutTacticalRenderer.renderTerrain(
       ctx,
@@ -689,15 +692,88 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
     });
 
     // ========================================================================
-    // 9. SEÇİLİ KARE & HOVER HEDEF GÖSTERGESİ
+    // 9. SEÇİLİ KARE, TAKTİK SEFER VEKTÖRÜ & HOVER HEDEF GÖSTERGESİ
     // ========================================================================
     if (selectedTile) {
       const { sx, sy } = worldToScreen(selectedTile.x, selectedTile.y, width, height);
-      ctx.strokeStyle = '#b91c1c';
+
+      // Hedef Karesi Zemin ve Çerçeve
+      ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 2.0;
       ctx.strokeRect(sx, sy, tileSize, tileSize);
-      ctx.fillStyle = 'rgba(185, 28, 28, 0.15)';
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.18)';
       ctx.fillRect(sx, sy, tileSize, tileSize);
+
+      // Köşe Parantezleri (Corner Brackets)
+      ctx.strokeStyle = '#fef08a';
+      ctx.lineWidth = 2.4;
+      const bLen = Math.min(10, tileSize * 0.28);
+      const right = sx + tileSize;
+      const bottom = sy + tileSize;
+      ctx.beginPath();
+      // Sol üst
+      ctx.moveTo(sx, sy + bLen); ctx.lineTo(sx, sy); ctx.lineTo(sx + bLen, sy);
+      // Sağ üst
+      ctx.moveTo(right - bLen, sy); ctx.lineTo(right, sy); ctx.lineTo(right, sy + bLen);
+      // Sol alt
+      ctx.moveTo(sx, bottom - bLen); ctx.lineTo(sx, bottom); ctx.lineTo(sx + bLen, bottom);
+      // Sağ alt
+      ctx.moveTo(right - bLen, bottom); ctx.lineTo(right, bottom); ctx.lineTo(right, bottom - bLen);
+      ctx.stroke();
+
+      // Taktik Sefer İntikal Hattı (Eğer hedef merkez köy değilse)
+      if (selectedTile.x !== playerVillage.x || selectedTile.y !== playerVillage.y) {
+        const pScreen = worldToScreen(playerVillage.x, playerVillage.y, width, height);
+        const pCenterX = pScreen.sx + tileSize / 2;
+        const pCenterY = pScreen.sy + tileSize / 2;
+        const tCenterX = sx + tileSize / 2;
+        const tCenterY = sy + tileSize / 2;
+
+        ctx.save();
+        // Animasyonlu Kesikli Çizgi
+        const dashOffset = -((time / 35) % 24);
+        ctx.setLineDash([8, 6]);
+        ctx.lineDashOffset = dashOffset;
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = Math.max(1.8, 2.5 * zoom);
+        ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
+        ctx.shadowBlur = 6;
+
+        ctx.beginPath();
+        ctx.moveTo(pCenterX, pCenterY);
+        ctx.lineTo(tCenterX, tCenterY);
+        ctx.stroke();
+
+        // Hat Ortası Taktik Mesafe ve Süre Rozeti
+        const midX = (pCenterX + tCenterX) / 2;
+        const midY = (pCenterY + tCenterY) / 2;
+        const dist = Math.hypot(selectedTile.x - playerVillage.x, selectedTile.y - playerVillage.y);
+        const cavTime = Math.max(1, Math.round(dist * 0.8));
+
+        ctx.setLineDash([]);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(20, 12, 6, 0.9)';
+        ctx.strokeStyle = '#caa05a';
+        ctx.lineWidth = 1;
+
+        const badgeText = `⚔️ ${dist.toFixed(1)}k (~${cavTime}dk)`;
+        ctx.font = 'bold 10.5px sans-serif';
+        const textWidth = ctx.measureText(badgeText).width;
+        const badgeW = textWidth + 14;
+        const badgeH = 20;
+
+        ctx.beginPath();
+        ctx.roundRect(midX - badgeW / 2, midY - badgeH / 2, badgeW, badgeH, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#fef08a';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(badgeText, midX, midY);
+
+        ctx.restore();
+      }
     }
 
     if (hoveredTile && (!selectedTile || hoveredTile.x !== selectedTile.x || hoveredTile.y !== selectedTile.y)) {
@@ -708,9 +784,9 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
     }
 
     // ========================================================================
-    // 10. SAĞ ALT MİNİMAP / RADAR (KÜÇÜK VE SADE)
+    // 10. SAĞ ALT MİNİMAP / RADAR (KÜÇÜK VE SADE - YALNIZCA TAKTİK RADAR KAPALIYSA)
     // ========================================================================
-    if (showMinimap) {
+    if (showMinimap && !showRadar) {
       const miniW = 140;
       const miniH = 70;
       const miniX = width - miniW - 12;
@@ -785,6 +861,8 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
     hoveredTile, 
     influenceRadius, 
     showMinimap,
+    showRadar,
+    mapMode,
     worldToScreen
   ]);
 
@@ -1027,97 +1105,59 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
       {/* SOL / ORTA: CANVAS HARİTA ALANI */}
       <div className="relative flex-1 min-w-0">
         
-        {/* Umaykut Üst Bar (Sol Rozet, Tecrübe Puanı, Dairesel Butonlar, Pusula, Tam Ekran, Ses) */}
-        <UmaykutTopHud
-          village={playerVillage}
+      {/* 2. STRATEJİK HARİTA KONTROL DOCK'U (OMNIBOX, MODLAR, İŞARETLER, FİLTRELER) */}
+      <MapStrategicControls
+        currentMode={mapMode}
+        onSelectMode={(mode) => setMapMode(mode)}
+        filterType={filterType}
+        onSelectFilter={(f) => setFilterType(f)}
+        showGrid={showGrid}
+        onToggleGrid={() => setShowGrid(g => !g)}
+        showInfluenceRings={showInfluenceRings}
+        onToggleInfluenceRings={() => setShowInfluenceRings(r => !r)}
+        showRadar={showRadar}
+        onToggleRadar={() => setShowRadar(r => !r)}
+        zoom={zoom}
+        onZoomIn={() => setZoom(z => Math.min(2.8, z * 1.2))}
+        onZoomOut={() => setZoom(z => Math.max(0.12, z / 1.2))}
+        onFocusCapital={() => {
+          focusOnCoordinates(playerVillage.x, playerVillage.y, true);
+          setZoom(1.0);
+        }}
+        onJumpToCoords={(x, y) => focusOnCoordinates(x, y, true)}
+        playerVillage={playerVillage}
+        playerVillages={playerVillages}
+        rivalVillages={rivalVillages}
+        selectedTile={selectedTile}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={() => setIsFullscreen(f => !f)}
+      />
+
+      {/* 2.5 STRATEJİK TAKTİK RADAR (SAĞ ALT) */}
+      {showRadar && (
+        <TacticalMinimapRadar
           camera={camera}
           zoom={zoom}
-          onFocusCapital={() => {
-            focusOnCoordinates(playerVillage.x, playerVillage.y, true);
-            setZoom(1.0);
-          }}
-          onJumpToCoords={(x, y) => {
-            focusOnCoordinates(x, y, true);
-          }}
-          onOpenBuilding={onOpenBuilding}
-          onSelectTab={onSelectTab}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={() => setIsFullscreen(f => !f)}
+          canvasWidth={canvasRef.current?.width || 1200}
+          canvasHeight={canvasRef.current?.height || 700}
+          playerVillages={playerVillages}
+          rivalVillages={rivalVillages}
+          activeMarches={activeMarches}
+          selectedTile={selectedTile}
+          onPanToCoords={(x, y) => focusOnCoordinates(x, y, true)}
+          onSelectCoords={(x, y) => setSelectedTile({ x, y })}
+          currentRegionName={selectedBiome ? (selectedBiome.factionZone && selectedBiome.factionZone !== 'neutral' && selectedBiome.factionZone !== 'water' ? `${FACTIONS[selectedBiome.factionZone]?.name || selectedBiome.factionZone} Sancağı` : 'Anadolu Bozkırı') : 'Anadolu Coğrafyası'}
         />
-
-      {/* 2. SOL ÜST: UMAYKUT TAKTİK KEŞİF FİLTRELERİ (SCOUT FILTER PLAQUE) */}
-      <div className="absolute top-12 sm:top-3 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-32 md:left-72 md:right-auto z-20 flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-[#2a1b10] via-[#3a2517] to-[#2a1b10] border sm:border-2 border-[#8c6738] rounded-xl p-1 sm:p-1.5 shadow-[0_6px_20px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.15)] text-[11px] sm:text-xs max-w-[95vw] overflow-x-auto custom-scrollbar select-none">
-        <span className="text-[9px] sm:text-[10px] uppercase font-black text-[#f5d78a] px-0.5 sm:px-1 font-serif tracking-wider drop-shadow shrink-0">Keşif:</span>
-        <button
-          onClick={() => setFilterType('all')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'all' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#bda688] hover:text-[#fff0d0] hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>🌿 Tümü</span>
-        </button>
-        <button
-          onClick={() => setFilterType('grain')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'grain' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#bda688] hover:text-[#fff0d0] hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>🌾 Buğday</span>
-        </button>
-        <button
-          onClick={() => setFilterType('iron')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'iron' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#bda688] hover:text-[#fff0d0] hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>⛏️ Demir</span>
-        </button>
-        <button
-          onClick={() => setFilterType('wood')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'wood' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#bda688] hover:text-[#fff0d0] hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>🌲 Odun</span>
-        </button>
-        <button
-          onClick={() => setFilterType('stone')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'stone' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#bda688] hover:text-[#fff0d0] hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>🪨 Taş</span>
-        </button>
-        <button
-          onClick={() => setFilterType('rival')}
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-serif text-[10px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shrink-0 touch-manipulation ${
-            filterType === 'rival' 
-              ? 'bg-gradient-to-b from-[#8a2b13] to-[#541205] border border-[#f59e0b] text-[#fff6e0] font-black shadow-[0_0_10px_rgba(245,158,11,0.4)]' 
-              : 'bg-[#1a110a] border border-[#523d26] text-[#e09191] hover:text-white hover:bg-[#2e1f13]'
-          }`}
-        >
-          <span>⚔️ Düşmanlar</span>
-        </button>
-      </div>
+      )}
 
 
-      {/* 2. SAĞ ALT FLOATING ZOOM & KAMERA KONTROLLERİ (ANTİK BRONZ SİKKE DOCK'U) */}
+      {/* 2. SOL ALT FLOATING ZOOM & KAMERA KONTROLLERİ (ANTİK BRONZ SİKKE DOCK'U) */}
       <div 
         onMouseDown={(e) => e.stopPropagation()}
         className={`absolute z-20 flex items-center gap-1.5 sm:gap-2 bg-gradient-to-b from-[#2a1c11] to-[#120a05] border sm:border-2 border-[#7a552b] rounded-2xl p-1 sm:p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.15)] text-xs transition-all duration-200 select-none ${
           selectedTile 
-            ? 'bottom-28 right-2 sm:bottom-4 sm:right-4' 
-            : 'bottom-3 right-2 sm:bottom-4 sm:right-4'
+            ? 'bottom-28 left-2.5 sm:bottom-20 sm:left-4' 
+            : 'bottom-12 left-2.5 sm:bottom-14 sm:left-4'
         }`}
       >
         <button
@@ -1486,285 +1526,27 @@ export const AnatoliaCanvasMap: React.FC<AnatoliaCanvasMapProps> = ({
         })()
       )}
 
-      {/* 4. ALT SEÇİLİ KARE BİLGİ & EYLEM FERMANI (UMAYKUT FLOATING ACTION BAR) */}
+      {/* 4. SEÇİLİ KARE/KÖY/MADEN BİLGİ VE AKSİYON KARTI (ALT ORTA) */}
       {selectedTile && (
-        <div className={`absolute bottom-3 left-3 right-3 sm:right-auto ${selectedNode ? 'sm:max-w-3xl w-auto' : 'sm:max-w-2xl'} z-20 max-h-[65vh] overflow-y-auto custom-scrollbar bg-gradient-to-r from-[#24160d]/98 via-[#352013]/98 to-[#24160d]/98 backdrop-blur-md border-2 border-[#caa05a] rounded-2xl p-3 sm:p-4 shadow-[0_12px_40px_rgba(0,0,0,0.95),inset_0_1px_2px_rgba(255,255,255,0.18)] text-[#f3e5ce] flex flex-col gap-3 animate-fade-in select-none`}>
-          
-          {/* ÜST BAŞLIK & TEMEL BİLGİLER */}
-          <div className="flex items-center justify-between gap-3 border-b border-[#523d26]/80 pb-2">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="flex items-center gap-1.5 font-serif font-black text-sm text-[#fef08a] drop-shadow">
-                <MapPin className="w-4 h-4 text-amber-400" />
-                <span>({selectedTile.x} | {selectedTile.y})</span>
-              </span>
-              <span className="text-xs font-mono text-[#c9ba9f] bg-[#150d06] px-2 py-0.5 rounded border border-[#5c401f] shadow-inner">
-                Mesafe: {selectedDistance.toFixed(1)} Kare • Varış: ~{Math.max(1, Math.round(selectedDistance * 1.5))} dk
-              </span>
-              {selectedNode && (
-                <>
-                  <span className="text-xs font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-600/70 shadow-sm flex items-center gap-1">
-                    💎 Verimlilik: {nodeEfficiency} / 9
-                  </span>
-                  {isSelectedInsideInfluence ? (
-                    <span className="text-xs font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-600/80 shadow-sm flex items-center gap-1">
-                      🟢 Çember Kapsamında (Yarıçap: {influenceRadius.toFixed(1)})
-                    </span>
-                  ) : (
-                    <span className="text-xs font-medium text-[#a89476] bg-[#150d06] px-2 py-0.5 rounded border border-[#523d26] flex items-center gap-1">
-                      ⚪ Çember Dışında (Yarıçap: {influenceRadius.toFixed(1)})
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                onClick={() => focusOnCoordinates(selectedTile.x, selectedTile.y, true)}
-                title="Kamerayı bu kareye ortala"
-                className="px-2 py-1 bg-[#3a2817] hover:bg-[#4d3620] text-amber-200 hover:text-white rounded-lg text-xs font-serif font-bold transition flex items-center gap-1 cursor-pointer border border-[#6b4f2c] hover:scale-105 active:scale-95"
-              >
-                <Crosshair className="w-3.5 h-3.5 text-amber-300" />
-                <span className="hidden sm:inline">Odaklan</span>
-              </button>
-              <button
-                onClick={() => {
-                  navigator.clipboard?.writeText(`${selectedTile.x}, ${selectedTile.y}`);
-                  setCopiedNotification(true);
-                  setTimeout(() => setCopiedNotification(false), 1600);
-                }}
-                title="Koordinatları Panoya Kopyala"
-                className="px-2 py-1 bg-[#251a10] hover:bg-[#382618] text-[#decab0] hover:text-amber-200 rounded-lg text-xs font-serif font-bold transition flex items-center gap-1 cursor-pointer border border-[#5a4228] hover:scale-105 active:scale-95"
-              >
-                {copiedNotification ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                )}
-              </button>
-              <button
-                onClick={() => setSelectedTile(null)}
-                title="Kapat"
-                className="p-1 rounded-full text-stone-400 hover:text-amber-200 hover:bg-[#3d2714] cursor-pointer transition font-bold"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-
-          {/* İÇERİK: EĞER KAYNAK DÜĞÜMÜ SEÇİLİYSE ÖZEL UMAYKUT İŞÇİ & VERİMLİLİK PANELİ */}
-          {selectedNode ? (
-            <div className="space-y-3">
-              {/* Kaynak Başlık ve Getiri Özeti */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#1b120a] p-2.5 rounded-xl border border-[#4a341f]">
-                <div>
-                  <h4 className="font-serif font-bold text-amber-100 text-sm flex items-center gap-1.5">
-                    <span>💎 {selectedNode.name}</span>
-                    <span className="text-[11px] font-mono text-amber-400/90 font-normal">
-                      (Kademe {selectedNode.tier} • {selectedNode.type.toUpperCase()})
-                    </span>
-                  </h4>
-                  <p className="text-[11px] text-[#decab0]/80 mt-0.5">
-                    1 İşçi = Saatte {nodeEfficiency} {selectedNode.type} üretir. Köyünüzün bu madenden kazancı: 
-                    <strong className="text-emerald-300 ml-1">+{nodeYieldPerHour}/saat</strong>
-                  </p>
-                </div>
-                
-                {/* İşçi Barı (Azami 1000 İşçi) */}
-                <div className="text-right sm:min-w-[140px]">
-                  <div className="text-[11px] text-[#decab0] flex justify-between gap-2 font-mono">
-                    <span>Toplam İşçi:</span>
-                    <strong className="text-amber-300">{nodeTotalWorkers} / 1000</strong>
-                  </div>
-                  <div className="w-full bg-[#120b06] h-2 rounded-full overflow-hidden border border-[#523d26] mt-1">
-                    <div 
-                      className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-300"
-                      style={{ width: `${Math.min(100, (nodeTotalWorkers / 1000) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 4'lü İstatistik Izgarası */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="bg-[#191008] p-2 rounded-lg border border-[#4a341f]">
-                  <div className="text-[10px] text-[#a89476] uppercase font-bold">Köyün İşçisi</div>
-                  <div className="text-amber-200 font-mono font-bold text-sm mt-0.5">
-                    {villageWorkersOnNode} <span className="text-[10px] text-[#8c7456] font-normal">işçi</span>
-                  </div>
-                </div>
-                <div className="bg-[#191008] p-2 rounded-lg border border-[#4a341f]">
-                  <div className="text-[10px] text-[#a89476] uppercase font-bold">Merkez Kapasitesi</div>
-                  <div className="text-stone-200 font-mono font-bold text-sm mt-0.5">
-                    {villageAssignedTotal} <span className="text-[#8c7456] font-normal">/ {townHallLimit}</span>
-                  </div>
-                  <div className="text-[9px] text-[#8c7456] font-mono mt-0.5">Lv.{playerVillage.buildings?.town_hall || 1} Merkez</div>
-                </div>
-                <div className="bg-[#191008] p-2 rounded-lg border border-[#4a341f]">
-                  <div className="text-[10px] text-[#a89476] uppercase font-bold">Boşta Nüfus</div>
-                  <div className={`font-mono font-bold text-sm mt-0.5 ${playerVillage.idlePopulation >= 10 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {playerVillage.idlePopulation} <span className="text-[10px] text-[#8c7456] font-normal">alp</span>
-                  </div>
-                </div>
-                <div className="bg-[#191008] p-2 rounded-lg border border-[#4a341f]">
-                  <div className="text-[10px] text-[#a89476] uppercase font-bold">Saatlik Verim</div>
-                  <div className="text-emerald-400 font-mono font-bold text-sm mt-0.5">
-                    +{nodeYieldPerHour} <span className="text-[10px] text-emerald-600 font-normal">/s</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Alt Eylem ve Uyarı Çubuğu */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
-                <div className="text-[11px] text-[#decab0]">
-                  {!workerAssignCheck?.allowed ? (
-                    <span className="text-rose-300 font-medium flex items-center gap-1">
-                      ⚠️ {workerAssignCheck?.reason}
-                    </span>
-                  ) : (
-                    <span className="text-emerald-300/90 font-medium flex items-center gap-1">
-                      ✓ İşçiler 10'arlı gruplar halinde atanır. Her işçi saatte +{nodeEfficiency} {selectedNode.type} kazandırır.
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                  {/* +10 İşçi Ata */}
-                  <button
-                    onClick={() => {
-                      if (workerAssignCheck?.allowed && onAssignWorkers) {
-                        onAssignWorkers(playerVillage.id, selectedNode.id, 10);
-                      }
-                    }}
-                    disabled={!workerAssignCheck?.allowed}
-                    className={`px-4 py-2 rounded-xl text-xs font-serif font-black transition-all flex items-center justify-center gap-2 shadow-lg border ${
-                      workerAssignCheck?.allowed
-                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-800 hover:brightness-110 text-white border-emerald-400 cursor-pointer hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.45)]'
-                        : 'bg-[#251a10] text-[#786145] border-[#523d26] opacity-60 cursor-not-allowed'
-                    }`}
-                  >
-                    <Pickaxe className="w-4 h-4 text-amber-300" />
-                    <span>+10 İşçi Ata</span>
-                  </button>
-
-                  {/* +50 İşçi Ata (Hızlı Atama) */}
-                  {playerVillage.idlePopulation >= 50 && (
-                    <button
-                      onClick={() => {
-                        if (workerAssignCheck?.allowed && onAssignWorkers) {
-                          onAssignWorkers(playerVillage.id, selectedNode.id, 50);
-                        }
-                      }}
-                      disabled={!workerAssignCheck?.allowed}
-                      className="px-3 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center justify-center gap-1.5 shadow-md border bg-gradient-to-r from-teal-700 to-emerald-900 hover:brightness-110 text-white border-teal-400 cursor-pointer hover:scale-105 active:scale-95"
-                      title="50 Boşta İşçiyi Hızlı Ata"
-                    >
-                      <Pickaxe className="w-3.5 h-3.5 text-yellow-300" />
-                      <span>+50 İşçi</span>
-                    </button>
-                  )}
-
-                  {/* -10 İşçi Geri Çek */}
-                  {villageWorkersOnNode > 0 && (
-                    <button
-                      onClick={() => {
-                        if (onAssignWorkers) {
-                          onAssignWorkers(playerVillage.id, selectedNode.id, -10);
-                        }
-                      }}
-                      className="px-3 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center justify-center gap-1.5 shadow-md border bg-gradient-to-r from-[#4a261a] to-[#2e150d] hover:brightness-125 text-amber-200 border-amber-600/80 cursor-pointer hover:scale-105 active:scale-95"
-                      title="10 İşçiyi Bu Kaynaktan Çek ve Köye İade Et"
-                    >
-                      <span>↩️ -10 İşçi Çek</span>
-                    </button>
-                  )}
-
-                  {/* Tümünü Geri Çek */}
-                  {villageWorkersOnNode >= 20 && (
-                    <button
-                      onClick={() => {
-                        if (onAssignWorkers) {
-                          onAssignWorkers(playerVillage.id, selectedNode.id, -villageWorkersOnNode);
-                        }
-                      }}
-                      className="px-3 py-2 rounded-xl text-xs font-serif font-bold transition-all flex items-center justify-center gap-1 shadow-md border bg-[#1a0f08] hover:bg-[#2b160b] text-[#c9ba9f] hover:text-white border-[#523d26] cursor-pointer hover:scale-105 active:scale-95"
-                      title="Bu Kaynaktaki Tüm İşçileri Köye Geri Çağır"
-                    >
-                      <span>Tümünü Çek ({villageWorkersOnNode})</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* DİĞER SEÇİLİ KARELER (DÜŞMAN KÖYÜ, OTLUK / ÇAYIR) */
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
-              <div className="text-xs font-serif leading-relaxed">
-                {selectedPlayerV ? (
-                  <span className="text-emerald-300 font-bold">
-                    🏰 {selectedPlayerV.name} (Kendi Otağınız • Merkez Lv.{selectedPlayerV.buildings.town_hall || 1})
-                  </span>
-                ) : selectedRival ? (
-                  <span className="text-rose-300 font-bold">
-                    ⚔️ {selectedRival.name} (Düşman Köyü • Sahibi: {selectedRival.ownerName} • {FACTIONS[selectedRival.faction]?.name || selectedRival.faction})
-                  </span>
-                ) : (
-                  <span className="text-[#decab0]">
-                    🌿 <strong className="text-[#f5d78a]">Verimli Açık Çayır</strong> (İskana ve Yeni Otağ Kurmaya Uygun
-                    {selectedBiome?.factionZone && selectedBiome.factionZone !== 'neutral' && selectedBiome.factionZone !== 'water' && (
-                      <span className="text-amber-300 font-bold ml-1">
-                        • {FACTIONS[selectedBiome.factionZone]?.name || selectedBiome.factionZone} Toprağı
-                      </span>
-                    )}
-                    )
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center flex-wrap sm:flex-nowrap">
-                {selectedRival && (
-                  <button
-                    onClick={() => {
-                      setDispatchTarget({
-                        name: selectedRival.name,
-                        x: selectedRival.x,
-                        y: selectedRival.y,
-                        ownerName: selectedRival.ownerName,
-                        faction: selectedRival.faction,
-                        villageId: selectedRival.id,
-                      });
-                      setDispatchInitialMission('attack');
-                      setIsDispatchModalOpen(true);
-                    }}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#8f2415] to-[#591006] hover:brightness-110 text-white rounded-lg text-xs font-serif font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.8)] border border-[#fca5a5]/80 hover:scale-105 active:scale-95 active:translate-y-0.5"
-                  >
-                    <Swords className="w-4 h-4 text-yellow-300" />
-                    <span>Asker Gönder</span>
-                  </button>
-                )}
-
-                {!selectedPlayerV && !selectedRival && onOpenFoundVillageModal && (
-                  <button
-                    onClick={() => onOpenFoundVillageModal({ x: selectedTile.x, y: selectedTile.y })}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#14532d] to-[#052e16] hover:brightness-110 text-white rounded-lg text-xs font-serif font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.8)] border border-[#86efac]/80 hover:scale-105 active:scale-95 active:translate-y-0.5"
-                  >
-                    <Plus className="w-4 h-4 text-emerald-300" />
-                    <span>Yeni Otağ Kur</span>
-                  </button>
-                )}
-
-                {selectedPlayerV && selectedPlayerV.id !== playerVillage.id && onSelectVillage && (
-                  <button
-                    onClick={() => onSelectVillage(selectedPlayerV.id)}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#1e40af] to-[#172554] hover:brightness-110 text-white rounded-lg text-xs font-serif font-bold transition cursor-pointer shadow-md border border-blue-400 hover:scale-105 active:scale-95"
-                  >
-                    Bu Köye Geç
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        <MapSelectionInspector
+          selectedTile={selectedTile}
+          playerVillage={playerVillage}
+          selectedNode={selectedNode}
+          selectedRival={selectedRival}
+          selectedPlayerV={selectedPlayerV}
+          influenceRadius={influenceRadius}
+          isSelectedInsideInfluence={isSelectedInsideInfluence}
+          onClose={() => setSelectedTile(null)}
+          onFocusCoordinates={(x, y) => focusOnCoordinates(x, y, true)}
+          onAssignWorkers={onAssignWorkers}
+          onOpenFoundVillageModal={onOpenFoundVillageModal}
+          onSelectVillage={onSelectVillage}
+          onOpenDispatchModal={(target, mission) => {
+            setDispatchTarget(target);
+            if (mission) setDispatchInitialMission(mission);
+            setIsDispatchModalOpen(true);
+          }}
+        />
       )}
 
       {/* 5. ORİJİNAL 3 BÖLÜMLÜ "ASKER GÖNDER" MODALI */}
